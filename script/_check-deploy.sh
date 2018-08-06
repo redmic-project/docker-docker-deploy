@@ -16,7 +16,7 @@ do
 			echo \"Checking service status, try \${i}/${STATUS_CHECK_RETRIES} ...\" && \
 			if [ \"\${SWARM_MODE}\" = true ]; \
 			then \
-				stackServices=\$(docker service ls -f name=${serviceToCheck}_ --format '{{.Replicas}}') ; \
+				stackServices=\$(docker service ls -f name=${serviceToCheck} --format '{{.Replicas}}') ; \
 				serviceCount=\$(echo \"\${stackServices}\" | /usr/bin/grep -cE '.+') ; \
 				runningServiceCount=\$(echo \"\${stackServices}\" | /usr/bin/grep -cE '([0-9]+)\/\1') ; \
 				statusCheckCmd=\"[ \"\${serviceCount}\" -ne \"0\" -a \"\${serviceCount:-_}\" = \"\${runningServiceCount:--}\" ]\" ; \
