@@ -2,13 +2,12 @@
 
 SERVICES_TO_CHECK="${SERVICES_TO_CHECK:-${STACK:-${SERVICE}}}"
 
-echo -e "\n${INFO_COLOR}Checking deployment of services [ ${SERVICES_TO_CHECK} ]..${NULL_COLOR}\n"
+echo -e "\n${INFO_COLOR}Checking deployment of services [${NULL_COLOR} ${SERVICES_TO_CHECK} ${INFO_COLOR}] ..${NULL_COLOR}\n"
 
 for serviceToCheck in ${SERVICES_TO_CHECK}
 do
-	echo -e "\n${INFO_COLOR}Checking deployment of service ${serviceToCheck}..${NULL_COLOR}"
-	echo -e "  ${INFO_COLOR}retries ${STATUS_CHECK_RETRIES}, interval ${STATUS_CHECK_INTERVAL}, min. hits \
-		${STATUS_CHECK_MIN_HITS}${NULL_COLOR}\n"
+	echo -e "${INFO_COLOR}Checking deployment of service ${NULL_COLOR}${serviceToCheck}${INFO_COLOR} ..${NULL_COLOR}"
+	echo -e "  ${INFO_COLOR}retries ${NULL_COLOR}${STATUS_CHECK_RETRIES}${INFO_COLOR}, interval ${NULL_COLOR}${STATUS_CHECK_INTERVAL}${INFO_COLOR}s, min. status hits ${NULL_COLOR}${STATUS_CHECK_MIN_HITS}\n"
 
 	checkDeployCmd="\
 		docker stack ls > /dev/null 2> /dev/null ; \
@@ -44,7 +43,7 @@ do
 				hits=\$((\${hits} + 1)) && \
 				if [ \"\${hits}\" -eq \"${STATUS_CHECK_MIN_HITS}\" ] ; \
 				then \
-					echo -e \"\\n${PASS_COLOR}Service ${serviceToCheck} is running!${NULL_COLOR}\" && \
+					echo -e \"\\n${PASS_COLOR}Service ${NULL_COLOR}${serviceToCheck}${PASS_COLOR} is running!${NULL_COLOR}\" && \
 					echo -e \"  got ${PASS_COLOR}\${hits}/${STATUS_CHECK_MIN_HITS}${NULL_COLOR} status hits\" && \
 					exit 0 ; \
 				fi ; \
@@ -53,7 +52,7 @@ do
 			fi ; \
 			sleep ${STATUS_CHECK_INTERVAL} ; \
 		done ; \
-		echo -e \"\\n${FAIL_COLOR}Service ${serviceToCheck} is not running!${NULL_COLOR}\" && \
+		echo -e \"\\n${FAIL_COLOR}Service ${NULL_COLOR}${serviceToCheck}${PASS_COLOR} is not running!${NULL_COLOR}\" && \
 		echo -e \"  got ${FAIL_COLOR}\${hits}/${STATUS_CHECK_MIN_HITS}${NULL_COLOR} status hits\" && \
 		exit 1 \
 	"

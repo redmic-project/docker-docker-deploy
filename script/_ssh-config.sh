@@ -2,8 +2,6 @@
 
 . _definitions.sh
 
-echo -e "\n${INFO_COLOR}Preparing connection to remote target..${NULL_COLOR}\n"
-
 if [ -z "${SSH_REMOTE}" ]
 then
 	echo -e "${FAIL_COLOR}You must define 'SSH_REMOTE' in environment, with remote user and hostname (like \

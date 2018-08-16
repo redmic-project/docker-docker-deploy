@@ -2,7 +2,7 @@
 
 . _definitions.sh
 
-echo -e "\n${INFO_COLOR}Creating networks..${NULL_COLOR}\n"
+echo -e "\n${INFO_COLOR}Creating networks ..${NULL_COLOR}\n"
 
 if [ "${#}" -lt "1" ]
 then
@@ -10,6 +10,7 @@ then
 	exit 1
 fi
 
+echo -e "\n${INFO_COLOR}Preparing connection to remote target ..${NULL_COLOR}\n"
 . _ssh-config.sh
 
 createNetsCmd=""

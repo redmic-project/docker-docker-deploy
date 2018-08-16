@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo -e "\n${INFO_COLOR}Preparing deploy configuration and resources..${NULL_COLOR}\n"
+echo -e "\n${INFO_COLOR}Preparing deploy configuration and resources ..${NULL_COLOR}\n"
 
 # Se comprueba si se despliega desde dentro de 'deploy' o desde la raíz del proyecto.
 if [ -d "${DEPLOY_DIR_NAME}" ]
