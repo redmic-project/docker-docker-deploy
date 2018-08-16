@@ -3,7 +3,7 @@ FROM docker:latest
 LABEL maintainer="info@redmic.es"
 
 ENV DOCKER_COMPOSE_VERSION=1.21.2 \
-	ALPINE_GLIBC_PACKAGE_VERSION="2.27-r0" \
+	ALPINE_GLIBC_PACKAGE_VERSION="2.28-r0" \
 	ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
 	LANG=C.UTF-8
 
@@ -12,7 +12,7 @@ RUN ALPINE_GLIBC_BASE_PACKAGE_FILENAME="glibc-$ALPINE_GLIBC_PACKAGE_VERSION.apk"
     ALPINE_GLIBC_I18N_PACKAGE_FILENAME="glibc-i18n-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
     apk add --no-cache --virtual=.build-dependencies wget ca-certificates && \
     wget \
-        "https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub" \
+        "https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub" \
         -O "/etc/apk/keys/sgerrand.rsa.pub" && \
     wget \
         "$ALPINE_GLIBC_BASE_URL/$ALPINE_GLIBC_PACKAGE_VERSION/$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
