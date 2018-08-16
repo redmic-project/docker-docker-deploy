@@ -2,13 +2,13 @@
 
 . _definitions.sh
 
-if [ -z "${SSH_REMOTE}" ] ;
+if [ -z "${SSH_REMOTE}" ]
 then
 	echo -e "${FAIL_COLOR}You must define 'SSH_REMOTE' in environment, with remote user and hostname (like 'ssh-user@ssh-remote')${NULL_COLOR}"
 	exit 1
 fi
 
-if [ -z "${GITLAB_DEPLOY_KEY}" ] ;
+if [ -z "${GITLAB_DEPLOY_KEY}" ]
 then
 	echo -e "${FAIL_COLOR}You must define 'GITLAB_DEPLOY_KEY' in environment, with a SSH private key accepted by remote server${NULL_COLOR}"
 	exit 1

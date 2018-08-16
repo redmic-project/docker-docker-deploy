@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Se comprueba si se despliega desde dentro de 'deploy' o desde la raíz del proyecto.
-if [ -d "${DEPLOY_DIR_NAME}" ] ;
+if [ -d "${DEPLOY_DIR_NAME}" ]
 then
 	cd "${DEPLOY_DIR_NAME}"
 	deployFiles="-r ./."
@@ -11,8 +11,8 @@ fi
 
 # Los argumentos pasados (opcionales) se tratan como variables de entorno.
 # Se prepara el fichero .env para usarlas en la máquina destino y se setean en este entorno también.
-envDefs="SERVICE=${SERVICE}"
-for arg in "${@}";
+envDefs="SERVICE=${SERVICE}\\nSTACK=${STACK}"
+for arg in "${@}"
 do
 	export "${arg}"
 	envDefs="${envDefs}\\n${arg}"
@@ -21,17 +21,17 @@ echo -e ${envDefs} >> .env
 
 # Antes de continuar, se comprueba que la configuración de despliegue sea válida.
 docker-compose config > /dev/null
-if [ "${?}" -ne "0" ] ;
+if [ "${?}" -ne "0" ]
 then
 	echo -e "${FAIL_COLOR}Invalid docker-compose configuration!${NULL_COLOR}"
 	exit 1
 fi
 
-SERVICE_HOME="${DEPLOY_PATH}/docker/${SERVICE}"
+DEPLOY_HOME="${DEPLOY_PATH}/docker/${STACK:-${SERVICE}}"
 
 # Se crea el directorio donde guardar los ficheros de despliegue del servicio.
-CREATE_DIR_CMD="mkdir -p ${SERVICE_HOME}"
-ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${CREATE_DIR_CMD}
+createDirCmd="mkdir -p ${DEPLOY_HOME}"
+ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${createDirCmd}
 
 # Se envían a su destino los ficheros de despliegue del servicio.
-scp ${SSH_PARAMS} ${deployFiles} "${SSH_REMOTE}:${SERVICE_HOME}"
+scp ${SSH_PARAMS} ${deployFiles} "${SSH_REMOTE}:${DEPLOY_HOME}"

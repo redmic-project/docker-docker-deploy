@@ -1,8 +1,8 @@
 #!/bin/sh
 
-SERVICES_TO_CHECK="${SERVICES_TO_CHECK:-${SERVICE}}"
+SERVICES_TO_CHECK="${SERVICES_TO_CHECK:-${STACK:-${SERVICE}}}"
 
-for serviceToCheck in ${SERVICES_TO_CHECK};
+for serviceToCheck in ${SERVICES_TO_CHECK}
 do
 	checkDeployCmd="\
 		docker stack ls > /dev/null 2> /dev/null ; \
