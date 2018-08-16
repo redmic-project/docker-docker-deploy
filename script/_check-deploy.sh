@@ -52,7 +52,7 @@ do
 			fi ; \
 			sleep ${STATUS_CHECK_INTERVAL} ; \
 		done ; \
-		echo -e \"${FAIL_COLOR}Service ${NULL_COLOR}${serviceToCheck}${PASS_COLOR} is not running!${NULL_COLOR}\" && \
+		echo -e \"${FAIL_COLOR}Service ${NULL_COLOR}${serviceToCheck}${FAIL_COLOR} is not running!${NULL_COLOR}\" && \
 		echo -e \"  got ${FAIL_COLOR}\${hits}/${STATUS_CHECK_MIN_HITS}${NULL_COLOR} status hits\" && \
 		exit 1 \
 	"
