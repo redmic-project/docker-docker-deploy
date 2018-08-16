@@ -7,7 +7,7 @@ echo -e "\n${INFO_COLOR}Checking deployment of services [${NULL_COLOR} ${SERVICE
 for serviceToCheck in ${SERVICES_TO_CHECK}
 do
 	echo -e "${INFO_COLOR}Checking deployment of service ${NULL_COLOR}${serviceToCheck}${INFO_COLOR} ..${NULL_COLOR}"
-	echo -e "  ${INFO_COLOR}retries ${NULL_COLOR}${STATUS_CHECK_RETRIES}${INFO_COLOR}, interval ${NULL_COLOR}${STATUS_CHECK_INTERVAL}${INFO_COLOR}s, min. status hits ${NULL_COLOR}${STATUS_CHECK_MIN_HITS}\n"
+	echo -e "  ${INFO_COLOR}retries ${NULL_COLOR}${STATUS_CHECK_RETRIES}${INFO_COLOR}, interval ${NULL_COLOR}${STATUS_CHECK_INTERVAL}${INFO_COLOR}s, hits ${NULL_COLOR}${STATUS_CHECK_MIN_HITS}\n"
 
 	checkDeployCmd="\
 		docker stack ls > /dev/null 2> /dev/null ; \

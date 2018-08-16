@@ -10,7 +10,6 @@ then
 	exit 1
 fi
 
-echo -e "\n${INFO_COLOR}Preparing connection to remote target ..${NULL_COLOR}\n"
 . _ssh-config.sh
 
 createNetsCmd=""
