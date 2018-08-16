@@ -13,14 +13,13 @@ then
 	exit 1
 fi
 
-echo -e "\n${INFO_COLOR}Preparing connection to remote target ..${NULL_COLOR}\n"
 . _ssh-config.sh
 
 . _prepare-deploy.sh
 
 . _do-deploy.sh
 
-echo -e "\n${INFO_COLOR}Waiting ${STATUS_CHECK_DELAY}s before checking deployment ..${NULL_COLOR}\n"
+echo -e "\n${INFO_COLOR}Waiting ${STATUS_CHECK_DELAY}s before checking deployment ..${NULL_COLOR}"
 sleep ${STATUS_CHECK_DELAY}
 
 . _check-deploy.sh
