@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo -e "\n${INFO_COLOR}Deploying at remote target..${NULL_COLOR}\n"
+
 deployCmd="\
 	cd ${DEPLOY_HOME} && \
 	docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY} && \
@@ -18,5 +20,5 @@ deployCmd="\
 		rm ${DEFAULT_DEPLOY_FILES} ; \
 	fi\
 "
-ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${deployCmd}"
 
+ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${deployCmd}"
