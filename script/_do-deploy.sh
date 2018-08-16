@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo -e "\n${INFO_COLOR}Deploying at remote target..${NULL_COLOR}\n"
+echo -e "\n${INFO_COLOR}Deploying at remote target ..${NULL_COLOR}\n"
 
 deployCmd="\
 	cd ${DEPLOY_HOME} && \
@@ -16,7 +16,7 @@ deployCmd="\
 	else \
 		composeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g') && \
 		env -i \$(grep -v '^#\\| ' .env | xargs) \
-			docker stack deploy -c \${composeFileSplitted} --prune --with-registry-auth ${STACK:-${SERVICE}} && \
+			docker stack deploy -c \${composeFileSplitted} --with-registry-auth ${STACK:-${SERVICE}} && \
 		rm ${DEFAULT_DEPLOY_FILES} ; \
 	fi\
 "
