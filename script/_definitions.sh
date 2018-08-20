@@ -17,5 +17,5 @@ FAIL_COLOR='\033[0;31m'
 PASS_COLOR='\033[0;32m'
 NULL_COLOR='\033[0m'
 
-SSH_PARAMS="-o UserKnownHostsFile=/dev/null -o Host=* -o StrictHostKeyChecking=no"
+SSH_PARAMS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet"
 SCRIPTS_PATH="/usr/bin/"
