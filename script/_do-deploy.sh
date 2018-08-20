@@ -4,7 +4,7 @@ echo -e "\n${INFO_COLOR}Deploying at remote target ..${NULL_COLOR}\n"
 
 deployCmd="\
 	cd ${DEPLOY_HOME} && \
-	echo \"${CI_JOB_TOKEN}\" | docker login --username ${REGISTRY_USER} --password-stdin ${CI_REGISTRY} && \
+	docker login -u ${REGISTRY_USER} -p ${CI_JOB_TOKEN} ${CI_REGISTRY} && \
 	docker stack ls > /dev/null 2> /dev/null ; \
 	if [ \"\${?}\" -ne \"0\" ] ; \
 	then \
