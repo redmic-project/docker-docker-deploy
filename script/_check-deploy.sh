@@ -13,26 +13,32 @@ do
 		docker stack ls > /dev/null 2> /dev/null ; \
 		if [ \"\${?}\" -eq \"0\" ] ; \
 		then \
-			SWARM_MODE=true ; \
+			swarmMode=true ; \
+		fi ; \
+		if ls /usr/bin/grep > /dev/null 2> /dev/null ; \
+		then \
+			grepBin=/usr/bin/grep ; \
+		else \
+			grepBin=grep ; \
 		fi ; \
 		hits=0 && \
 		for i in \$(seq 1 ${STATUS_CHECK_RETRIES}) ; \
 		do \
 			echo -e \"  try \${i}/${STATUS_CHECK_RETRIES} .. \\c\" && \
-			if [ \"\${SWARM_MODE}\" = true ] ; \
+			if [ \"\${swarmMode}\" = true ] ; \
 			then \
 				stackServices=\$(docker service ls -f name=${serviceToCheck} --format '{{.Replicas}}') ; \
-				serviceCount=\$(echo \"\${stackServices}\" | /usr/bin/grep -cE '.+') ; \
-				runningServiceCount=\$(echo \"\${stackServices}\" | /usr/bin/grep -cE '([0-9]+)\/\1') ; \
+				serviceCount=\$(echo \"\${stackServices}\" | \${grepBin} -cE '.+') ; \
+				runningServiceCount=\$(echo \"\${stackServices}\" | \${grepBin} -cE '([0-9]+)\/\1') ; \
 				statusCheckCmd=\"[ \"\${serviceCount}\" -ne \"0\" -a \
 					\"\${serviceCount:-_}\" = \"\${runningServiceCount:--}\" ]\" ; \
 			else \
 				runningContainersIds=\$(docker ps -f status=running --format '{{.ID}}' --no-trunc) ; \
 				successfullyExitedContainersIds=\$(docker ps -a -f exited=0 --format '{{.ID}}' --no-trunc) ; \
 				serviceContainerId=\$(docker inspect --format='{{.ID}}' ${serviceToCheck} 2> /dev/null) ; \
-				runningService=\$(echo \"\${runningContainersIds}\" | grep \"\${serviceContainerId:--}\") ; \
+				runningService=\$(echo \"\${runningContainersIds}\" | \${grepBin} \"\${serviceContainerId:--}\") ; \
 				successfullyExitedService=\$(echo \"\${successfullyExitedContainersIds}\" | \
-					grep \"\${serviceContainerId:--}\") ; \
+					\${grepBin} \"\${serviceContainerId:--}\") ; \
 				statusCheckCmd=\"[ \${serviceContainerId:-_} = \${runningService:--} -o \
 					\${serviceContainerId:-_} = \${successfullyExitedService:--} ]\" ; \
 			fi ; \
