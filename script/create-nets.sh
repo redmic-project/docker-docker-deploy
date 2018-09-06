@@ -21,8 +21,7 @@ createNetsCmd="${createNetsCmd} :"
 
 createNetsInRemoteCmd="\
 	createNetCmd=\"docker network create\" && \
-	docker stack ls > /dev/null 2> /dev/null ; \
-	if [ \"\${?}\" -eq \"0\" ] ; \
+	if docker stack ls > /dev/null 2> /dev/null ; \
 	then \
 		createNetCmd=\"\${createNetCmd} -d overlay --attachable\" ; \
 	fi ; \

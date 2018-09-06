@@ -27,16 +27,17 @@ echo -e "\n${INFO_COLOR}Checking deploy configuration in docker-compose files ..
 echo -e "  ${INFO_COLOR}compose files [ ${DATA_COLOR}${COMPOSE_FILE}${INFO_COLOR} ]${NULL_COLOR}"
 
 # Antes de continuar, se comprueba que la configuración de despliegue sea válida.
-docker-compose config > /dev/null
-if [ "${?}" -ne "0" ]
+
+if docker-compose config > /dev/null
 then
+	echo -e "${PASS_COLOR}Valid docker-compose configuration!${NULL_COLOR}"
+else
 	echo -e "${FAIL_COLOR}Invalid docker-compose configuration!${NULL_COLOR}"
 	exit 1
-else
-	echo -e "${PASS_COLOR}Valid docker-compose configuration!${NULL_COLOR}"
 fi
 
-DEPLOY_HOME="${DEPLOY_PATH}/docker/${STACK:-${SERVICE}}"
+randomValue="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)"
+DEPLOY_HOME="${DEPLOY_PATH}/docker-deploy/${randomValue}"
 
 echo -e "\n${INFO_COLOR}Sending deploy resources to remote ..${NULL_COLOR}"
 echo -e "  ${INFO_COLOR}deploy path [ ${DATA_COLOR}${DEPLOY_HOME}${INFO_COLOR} ]${NULL_COLOR}"

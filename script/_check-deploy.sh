@@ -10,8 +10,7 @@ do
 	echo -e "  ${INFO_COLOR}retries ${DATA_COLOR}${STATUS_CHECK_RETRIES}${INFO_COLOR}, interval ${DATA_COLOR}${STATUS_CHECK_INTERVAL}${INFO_COLOR}s, hits ${DATA_COLOR}${STATUS_CHECK_MIN_HITS}${NULL_COLOR}"
 
 	checkDeployCmd="\
-		docker stack ls > /dev/null 2> /dev/null ; \
-		if [ \"\${?}\" -eq \"0\" ] ; \
+		if docker stack ls > /dev/null 2> /dev/null ; \
 		then \
 			swarmMode=true ; \
 		fi ; \
@@ -42,8 +41,7 @@ do
 				statusCheckCmd=\"[ \${serviceContainerId:-_} = \${runningService:--} -o \
 					\${serviceContainerId:-_} = \${successfullyExitedService:--} ]\" ; \
 			fi ; \
-			eval \"\${statusCheckCmd}\" ; \
-			if [ \"\${?}\" -eq \"0\" ] ; \
+			if eval \"\${statusCheckCmd}\" ; \
 			then \
 				echo -e \"${PASS_COLOR}[PASS]${NULL_COLOR}\" && \
 				hits=\$((\${hits} + 1)) && \
