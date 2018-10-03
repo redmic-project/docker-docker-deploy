@@ -16,7 +16,7 @@ relaunchCmd="\
 	docker login -u ${REGISTRY_USER} -p ${CI_JOB_TOKEN} ${CI_REGISTRY} && \
 	docker pull \${imageNameAndTag} && \
 	imageDigest=\$(docker images --digests --format '{{.Digest}}' \${imageName} | head -1) && \
-	docker service update --force --image \${imageDigest} ${SERVICE} \
+	docker service update --force --image \${imageName}@\${imageDigest} ${SERVICE} \
 "
 
 ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${relaunchCmd}"
