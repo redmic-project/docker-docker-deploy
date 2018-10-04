@@ -12,7 +12,7 @@ fi
 
 relaunchCmd="\
 	imageNameAndTag=\$(docker service ls --filter 'name=${SERVICE}' --format '{{.Image}}') && \
-	imageName=\$(echo \${imageNameAndTag} | cut -f 1 -d ':') && \
+	imageName=\$(echo \${imageNameAndTag} | cut -f 1 -d ':' | cut -f 1 -d '@') && \
 	docker login -u ${REGISTRY_USER} -p ${CI_JOB_TOKEN} ${CI_REGISTRY} && \
 	docker pull \${imageNameAndTag} && \
 	imageDigest=\$(docker images --digests --format '{{.Digest}}' \${imageName} | head -1) && \
