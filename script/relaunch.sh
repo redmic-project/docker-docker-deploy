@@ -18,7 +18,7 @@ relaunchCmd="\
 	if [ -z \"\${imageName}\" ] ; \
 	then \
 		echo -e \"${FAIL_COLOR}Service image not found!${NULL_COLOR}\" && \
-		exit 0 ; \
+		exit 1 ; \
 	fi ; \
 	docker login -u ${REGISTRY_USER} -p ${CI_JOB_TOKEN} ${CI_REGISTRY} && \
 	docker pull \${imageNameAndTag} && \
