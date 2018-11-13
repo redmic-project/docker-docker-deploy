@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo -e "\n${INFO_COLOR}Deploying at remote target ..${NULL_COLOR}\n"
+echo -e "\n${INFO_COLOR}Deploying at remote target ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}\n"
 
 deployCmd="\
 	cd ${DEPLOY_HOME} && \
@@ -20,4 +20,10 @@ deployCmd="\
 	rm -rf ${DEPLOY_HOME}\
 "
 
-ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${deployCmd}"
+if ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${deployCmd}"
+then
+	echo -e "${PASS_COLOR}Service successfully deployed!${NULL_COLOR}"
+else
+	echo -e "${FAIL_COLOR}Service deploy failed!${NULL_COLOR}"
+	exit 1
+fi
