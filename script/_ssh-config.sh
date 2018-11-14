@@ -17,5 +17,5 @@ then
 fi
 
 # Se prepara la identidad para conectar al servidor de despliegue.
-eval "$(ssh-agent -s)"
+ssh-agent -s
 echo "${GITLAB_DEPLOY_KEY}" | tr -d '\r' | ssh-add - > /dev/null

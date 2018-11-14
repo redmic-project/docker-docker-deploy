@@ -41,7 +41,7 @@ do
 				statusCheckCmd=\"[ \${serviceContainerId:-_} = \${runningService:--} -o \
 					\${serviceContainerId:-_} = \${successfullyExitedService:--} ]\" ; \
 			fi ; \
-			if eval \"\${statusCheckCmd}\" ; \
+			if \${statusCheckCmd} ; \
 			then \
 				echo -e \"${PASS_COLOR}[PASS]${NULL_COLOR}\" && \
 				hits=\$((\${hits} + 1)) && \
