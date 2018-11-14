@@ -15,15 +15,16 @@ deployCmd="\
 		docker-compose rm -f ${SERVICE} && \
 		docker-compose pull ${SERVICE} && \
 		docker-compose up -d ${SERVICE} ; \
-	fi ; \
-	cd .. && \
-	rm -rf ${DEPLOY_HOME}\
-"
+	fi"
+
+cleanDeployCmd="ssh ${SSH_PARAMS} \"${SSH_REMOTE}\" \"rm -rf ${DEPLOY_HOME}\""
 
 if ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${deployCmd}"
 then
 	echo -e "${PASS_COLOR}Service successfully deployed!${NULL_COLOR}"
+	${cleanDeployCmd}
 else
 	echo -e "${FAIL_COLOR}Service deploy failed!${NULL_COLOR}"
+	${cleanDeployCmd}
 	exit 1
 fi
