@@ -41,7 +41,7 @@ do
 				statusCheckCmd=\"[ \${serviceContainerId:-_} = \${runningService:--} -o \
 					\${serviceContainerId:-_} = \${successfullyExitedService:--} ]\" ; \
 			fi ; \
-			if eval \"\${statusCheckCmd}\" ; \
+			if \${statusCheckCmd} ; \
 			then \
 				echo -e \"${PASS_COLOR}[PASS]${NULL_COLOR}\" && \
 				hits=\$((\${hits} + 1)) && \
@@ -58,8 +58,7 @@ do
 		done ; \
 		echo -e \"${FAIL_COLOR}Service ${DATA_COLOR}${serviceToCheck}${FAIL_COLOR} is not running!${NULL_COLOR}\" && \
 		echo -e \"  got ${FAIL_COLOR}\${hits}/${STATUS_CHECK_MIN_HITS}${NULL_COLOR} status hits\" && \
-		exit 1 \
-	"
+		exit 1"
 
 	ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${checkDeployCmd}"
 done
