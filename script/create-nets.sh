@@ -26,7 +26,7 @@ createNetsInRemoteCmd="\
 		createNetCmd=\"\${createNetCmd} -d overlay --attachable\" ; \
 	fi ; \
 	createNetsCmd=\$(echo \"${createNetsCmd}\") && \
-	\${createNetsCmd}"
+	eval \"\${createNetsCmd}\""
 
 if ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${createNetsInRemoteCmd}
 then
