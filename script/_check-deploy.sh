@@ -29,14 +29,14 @@ do
 				stackServices=\$(docker service ls -f name=${serviceToCheck} --format '{{.Replicas}}') ; \
 				serviceCount=\$(echo \"\${stackServices}\" | \${grepBin} -cE '.+') ; \
 				runningServiceCount=\$(echo \"\${stackServices}\" | \${grepBin} -cE '([0-9]+)\/\1') ; \
-				for j in \$(seq 1 ${runningServiceCount}) ; \
+				for j in \$(seq 1 \${runningServiceCount}) ; \
 				do \
 					runningServiceName=\$(docker service ls -f name=${serviceToCheck} --format '{{.Name}}') | \
 						head -\${j} | tail -1 ; \
 					runningServiceDesiredReplicas=\$(docker service ls -f name=\${runningServiceName} \
 						--format '{{.Replicas}}' | cut -d '/' -f 2) ; \
 					completedTaskCount=0 ; \
-					for k in \$(seq 1 ${runningServiceDesiredReplicas}) ; \
+					for k in \$(seq 1 \${runningServiceDesiredReplicas}) ; \
 					do \
 						runningServiceStoppedTaskState=\$(docker service ps --format '{{.CurrentState}}' \
 							-f 'desired-state=shutdown' -f \"name=\${runningServiceName}.\${k}\" \
