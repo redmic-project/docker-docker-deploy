@@ -2,10 +2,9 @@ FROM docker:latest
 
 LABEL maintainer="info@redmic.es"
 
-ENV DOCKER_COMPOSE_VERSION=1.21.2 \
-	ALPINE_GLIBC_PACKAGE_VERSION="2.28-r0" \
-	ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
-	LANG=C.UTF-8
+ARG ALPINE_GLIBC_PACKAGE_VERSION="2.28-r0"
+ARG ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download"
+ARG LANG=C.UTF-8
 
 RUN ALPINE_GLIBC_BASE_PACKAGE_FILENAME="glibc-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
     ALPINE_GLIBC_BIN_PACKAGE_FILENAME="glibc-bin-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
@@ -35,6 +34,8 @@ RUN ALPINE_GLIBC_BASE_PACKAGE_FILENAME="glibc-$ALPINE_GLIBC_PACKAGE_VERSION.apk"
         "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \
         "$ALPINE_GLIBC_BIN_PACKAGE_FILENAME" \
         "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
+
+ARG DOCKER_COMPOSE_VERSION=1.23.2
 
 RUN apk --update --no-cache add openssh-client && \
 	wget \

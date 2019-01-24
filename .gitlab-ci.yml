@@ -1,15 +1,17 @@
-image: docker:stable
-
 stages:
   - package
   - test-package
 
+image: docker:stable
+
+variables:
+  DOCKER_DRIVER: overlay2
+
+services:
+  - docker:dind
+
 docker-build-development:
   stage: package
-  variables:
-    DOCKER_DRIVER: overlay2
-  services:
-    - docker:dind
   only:
     - branches
   except:
@@ -21,10 +23,6 @@ docker-build-development:
 
 docker-build-stable:
   stage: package
-  variables:
-    DOCKER_DRIVER: overlay2
-  services:
-    - docker:dind
   only:
     - master
   script:
@@ -34,11 +32,7 @@ docker-build-stable:
 
 container-scanning:
   stage: test-package
-  variables:
-    DOCKER_DRIVER: overlay2
   allow_failure: true
-  services:
-    - docker:stable-dind
   only:
     - branches
   script:
@@ -51,6 +45,8 @@ container-scanning:
     - mv clair-scanner_linux_amd64 clair-scanner
     - chmod +x clair-scanner
     - touch clair-whitelist.yml
-    - ./clair-scanner -c http://docker:6060 --ip $(hostname -i) -r gl-sast-container-report.json -l clair.log -w clair-whitelist.yml ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} || true
+    - >
+      ./clair-scanner -c http://docker:6060 --ip $(hostname -i) -r gl-sast-container-report.json -l clair.log
+      -w clair-whitelist.yml ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} || true
   artifacts:
     paths: [gl-sast-container-report.json]
