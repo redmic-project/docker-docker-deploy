@@ -41,7 +41,7 @@ do
 						runningServiceStoppedTaskState=\$(docker service ps --format '{{.CurrentState}}' \
 							-f 'desired-state=shutdown' -f \"name=\${runningServiceName}.\${k}\" \
 							\${runningServiceName} | head -1) ; \
-						if echo \"\${runningServiceStoppedTaskState}\" | grep 'Complete' ; \
+						if echo \"\${runningServiceStoppedTaskState}\" | grep 'Complete' > /dev/null 2> /dev/null ; \
 						then \
 							completedTaskCount=\$((\${completedTaskCount} + 1)) ; \
 						fi ; \
