@@ -29,10 +29,10 @@ do
 				stackServices=\$(docker service ls -f name=${serviceToCheck} --format '{{.Replicas}}') ; \
 				serviceCount=\$(echo \"\${stackServices}\" | \${grepBin} -cE '.+') ; \
 				runningServiceCount=\$(echo \"\${stackServices}\" | \${grepBin} -cE '([0-9]+)\/\1') ; \
-				for j in \$(seq 1 \${runningServiceCount}) ; \
+				for j in \$(seq 1 \${serviceCount}) ; \
 				do \
-					runningServiceName=\$(docker service ls -f name=${serviceToCheck} --format '{{.Name}}') | \
-						head -\${j} | tail -1 ; \
+					runningServiceName=\$(docker service ls -f name=${serviceToCheck} --format '{{.Name}}' | \
+						head -\${j} | tail -1) ; \
 					runningServiceDesiredReplicas=\$(docker service ls -f name=\${runningServiceName} \
 						--format '{{.Replicas}}' | cut -d '/' -f 2) ; \
 					completedTaskCount=0 ; \
@@ -46,10 +46,10 @@ do
 							completedTaskCount=\$((\${completedTaskCount} + 1)) ; \
 						fi ; \
 					done ; \
-				if [ \${completedTaskCount} -eq \${runningServiceDesiredReplicas} ] ; \
-				then \
-					runningServiceCount=\$((\${runningServiceCount} + 1)) ; \
-				fi ; \
+					if [ \${completedTaskCount} -eq \${runningServiceDesiredReplicas} ] ; \
+					then \
+						runningServiceCount=\$((\${runningServiceCount} + 1)) ; \
+					fi ; \
 				done ; \
 				statusCheckCmd=\"[ \"\${serviceCount}\" -ne \"0\" -a \
 					\"\${serviceCount:-_}\" = \"\${runningServiceCount:--}\" ]\" ; \
