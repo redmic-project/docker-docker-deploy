@@ -25,7 +25,7 @@ do
 					runningServiceName=\$(docker service ls -f name=${serviceToCheck} --format '{{.Name}}' | \
 						head -\${j} | tail -1) ; \
 					runningServiceDesiredReplicas=\$(docker service ls -f name=\${runningServiceName} \
-						--format '{{.Replicas}}' | cut -d '/' -f 2) ; \
+						--format '{{.Replicas}}' | head -1 | cut -d '/' -f 2) ; \
 					completedTaskCount=0 ; \
 					for k in \$(seq 1 \${runningServiceDesiredReplicas}) ; \
 					do \
