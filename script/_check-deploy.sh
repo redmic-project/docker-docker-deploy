@@ -18,32 +18,36 @@ do
 			if docker stack ls > /dev/null 2> /dev/null ; \
 			then \
 				stackServices=\$(docker service ls -f name=${serviceToCheck} --format '{{.Replicas}}') ; \
+				serviceToCheckReplication=\$(echo \"\${stackServices}\" | head -1) ; \
+				runningServiceName=\$(docker service ls -f name=${serviceToCheck} --format '{{.Name}}' | head -1) ; \
 				serviceCount=\$(echo \"\${stackServices}\" | ${GREP_BIN} -cE '.+') ; \
-				runningServiceCount=\$(echo \"\${stackServices}\" | ${GREP_BIN} -cE '([0-9]+)\/\1') ; \
-				for j in \$(seq 1 \${serviceCount}) ; \
-				do \
-					runningServiceName=\$(docker service ls -f name=${serviceToCheck} --format '{{.Name}}' | \
-						head -\${j} | tail -1) ; \
-					runningServiceDesiredReplicas=\$(docker service ls -f name=\${runningServiceName} \
-						--format '{{.Replicas}}' | head -1 | cut -d '/' -f 2) ; \
+				if [ \${serviceCount} -gt 1 ] ; \
+				then \
+					echo -e \"${INFO_COLOR}Found ${DATA_COLOR}\${serviceCount}${INFO_COLOR} running services by name ${DATA_COLOR}${serviceToCheck}${INFO_COLOR}${NULL_COLOR}\" ; \
+					echo -e \"  ${INFO_COLOR}Will check only the service exactly named ${DATA_COLOR}\${runningServiceName}${NULL_COLOR}\" ; \
+				fi ; \
+				runningServiceCount=\$(echo \"\${serviceToCheckReplication}\" | ${GREP_BIN} -cE '([0-9]+)\/\1') ; \
+				serviceIsRunning=\"[ \${runningServiceCount} -eq 1 ]\" ; \
+				if ! \${serviceIsRunning} ; \
+				then \
+					serviceToCheckDesiredReplicas=\$(echo \${serviceToCheckReplication} | cut -d '/' -f 2) ; \
 					completedTaskCount=0 ; \
-					for k in \$(seq 1 \${runningServiceDesiredReplicas}) ; \
+					for j in \$(seq 1 \${serviceToCheckDesiredReplicas}) ; \
 					do \
-						runningServiceStoppedTaskState=\$(docker service ps --format '{{.CurrentState}}' \
-							-f 'desired-state=shutdown' -f \"name=\${runningServiceName}.\${k}\" \
+						replicaStoppedTaskState=\$(docker service ps --format '{{.CurrentState}}' \
+							-f 'desired-state=shutdown' -f \"name=\${runningServiceName}.\${j}\" \
 							\${runningServiceName} | head -1) ; \
-						if echo \"\${runningServiceStoppedTaskState}\" | grep 'Complete' > /dev/null 2> /dev/null ; \
+						if echo \"\${replicaStoppedTaskState}\" | grep 'Complete' > /dev/null 2> /dev/null ; \
 						then \
 							completedTaskCount=\$((\${completedTaskCount} + 1)) ; \
 						fi ; \
 					done ; \
-					if [ \${completedTaskCount} -eq \${runningServiceDesiredReplicas} ] ; \
+					if [ \${completedTaskCount} -eq \${serviceToCheckDesiredReplicas} ] ; \
 					then \
-						runningServiceCount=\$((\${runningServiceCount} + 1)) ; \
+						serviceIsRunning=true ; \
 					fi ; \
-				done ; \
-				statusCheckCmd=\"[ \"\${serviceCount}\" -ne \"0\" -a \
-					\"\${serviceCount:-_}\" = \"\${runningServiceCount:--}\" ]\" ; \
+				fi ; \
+				statusCheckCmd=\${serviceIsRunning} ; \
 			else \
 				runningContainersIds=\$(docker ps -f status=running --format '{{.ID}}' --no-trunc) ; \
 				successfullyExitedContainersIds=\$(docker ps -a -f exited=0 --format '{{.ID}}' --no-trunc) ; \
