@@ -14,17 +14,16 @@ do
 		hits=0 && \
 		for i in \$(seq 1 ${STATUS_CHECK_RETRIES}) ; \
 		do \
-			echo -e \"  try \${i}/${STATUS_CHECK_RETRIES} .. \\c\" && \
 			if docker stack ls > /dev/null 2> /dev/null ; \
 			then \
 				stackServices=\$(docker service ls -f name=${serviceToCheck} --format '{{.Replicas}}') ; \
 				serviceToCheckReplication=\$(echo \"\${stackServices}\" | head -1) ; \
 				runningServiceName=\$(docker service ls -f name=${serviceToCheck} --format '{{.Name}}' | head -1) ; \
 				serviceCount=\$(echo \"\${stackServices}\" | ${GREP_BIN} -cE '.+') ; \
-				if [ \${serviceCount} -gt 1 ] ; \
+				if [ \${serviceCount} -gt 1 -a \${i} -eq 1 ] ; \
 				then \
 					echo -e \"${INFO_COLOR}Found ${DATA_COLOR}\${serviceCount}${INFO_COLOR} running services by name ${DATA_COLOR}${serviceToCheck}${INFO_COLOR}${NULL_COLOR}\" ; \
-					echo -e \"  ${INFO_COLOR}Will check only the service exactly named ${DATA_COLOR}\${runningServiceName}${NULL_COLOR}\" ; \
+					echo -e \"  ${INFO_COLOR}Will check only the service exactly named ${DATA_COLOR}\${runningServiceName}${NULL_COLOR}\\n\" ; \
 				fi ; \
 				runningServiceCount=\$(echo \"\${serviceToCheckReplication}\" | ${GREP_BIN} -cE '([0-9]+)\/\1') ; \
 				serviceIsRunning=\"[ \${runningServiceCount} -eq 1 ]\" ; \
@@ -58,6 +57,7 @@ do
 				statusCheckCmd=\"[ \${serviceContainerId:-_} = \${runningService:--} -o \
 					\${serviceContainerId:-_} = \${successfullyExitedService:--} ]\" ; \
 			fi ; \
+			echo -e \"  try \${i}/${STATUS_CHECK_RETRIES} .. \\c\" ; \
 			if \${statusCheckCmd} ; \
 			then \
 				echo -e \"${PASS_COLOR}[PASS]${NULL_COLOR}\" && \
