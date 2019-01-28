@@ -26,5 +26,6 @@ then
 else
 	echo -e "${FAIL_COLOR}Service deploy failed!${NULL_COLOR}"
 	eval "${cleanDeployCmd}"
+	ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
 	exit 1
 fi

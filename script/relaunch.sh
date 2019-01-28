@@ -30,5 +30,6 @@ then
 	echo -e "${PASS_COLOR}Service ${DATA_COLOR}${SERVICE}${PASS_COLOR} relaunched!${NULL_COLOR}"
 else
 	echo -e "${FAIL_COLOR}Service ${DATA_COLOR}${SERVICE}${PASS_COLOR} relaunch failed!${NULL_COLOR}"
+	ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
 	exit 1
 fi

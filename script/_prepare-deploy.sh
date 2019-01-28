@@ -51,6 +51,7 @@ createDirCmd="mkdir -p ${DEPLOY_HOME}"
 if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${createDirCmd}
 then
 	echo -e "${FAIL_COLOR}Deploy path ${DATA_COLOR}${DEPLOY_HOME}${FAIL_COLOR} creation failed!${NULL_COLOR}"
+	ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
 	exit 1
 fi
 
@@ -60,5 +61,6 @@ then
 	echo -e "${PASS_COLOR}Deploy resources successfully sent!${NULL_COLOR}"
 else
 	echo -e "${FAIL_COLOR}Deploy resources sending failed!${NULL_COLOR}"
+	ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
 	exit 1
 fi
