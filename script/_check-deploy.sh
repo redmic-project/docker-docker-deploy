@@ -22,8 +22,8 @@ do
 				serviceCount=\$(echo \"\${stackServices}\" | ${GREP_BIN} -cE '.+') ; \
 				if [ \${serviceCount} -gt 1 -a \${i} -eq 1 ] ; \
 				then \
-					echo -e \"${INFO_COLOR}Found ${DATA_COLOR}\${serviceCount}${INFO_COLOR} running services by name ${DATA_COLOR}${serviceToCheck}${INFO_COLOR}${NULL_COLOR}\" ; \
-					echo -e \"  ${INFO_COLOR}Will check only the service exactly named ${DATA_COLOR}\${runningServiceName}${NULL_COLOR}\\n\" ; \
+					echo -e \"${FAIL_COLOR}Found ${DATA_COLOR}\${serviceCount}${FAIL_COLOR} services filtering by name ${DATA_COLOR}${serviceToCheck}${FAIL_COLOR},${NULL_COLOR}\" ; \
+					echo -e \"  ${FAIL_COLOR}will check only the service exactly named ${DATA_COLOR}\${runningServiceName}${NULL_COLOR}\\n\" ; \
 				fi ; \
 				runningServiceCount=\$(echo \"\${serviceToCheckReplication}\" | ${GREP_BIN} -cE '([0-9]+)\/\1') ; \
 				serviceIsRunning=\"[ \${runningServiceCount} -eq 1 ]\" ; \
