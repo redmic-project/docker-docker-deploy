@@ -79,3 +79,5 @@ do
 
 	ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${checkDeployCmd}"
 done
+
+ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"

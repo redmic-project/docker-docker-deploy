@@ -33,5 +33,6 @@ then
 	echo -e "${PASS_COLOR}Network creation was successful!${NULL_COLOR}"
 else
 	echo -e "${FAIL_COLOR}Network creation failed!${NULL_COLOR}"
+	ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
 	exit 1
 fi
