@@ -1,7 +1,6 @@
 #!/bin/sh
 
 SERVICES_TO_CHECK="${SERVICES_TO_CHECK:-${STACK:-${SERVICE}}}"
-GREP_BIN="${GREP_BIN:-grep}"
 
 echo -e "\n${INFO_COLOR}Checking deployment of services [${DATA_COLOR} ${SERVICES_TO_CHECK} ${INFO_COLOR}] at ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
 
@@ -36,7 +35,7 @@ do
 						replicaStoppedTaskState=\$(docker service ps --format '{{.CurrentState}}' \
 							-f 'desired-state=shutdown' -f \"name=\${runningServiceName}.\${j}\" \
 							\${runningServiceName} | head -1) ; \
-						if echo \"\${replicaStoppedTaskState}\" | grep 'Complete' > /dev/null 2> /dev/null ; \
+						if echo \"\${replicaStoppedTaskState}\" | ${GREP_BIN} 'Complete' > /dev/null 2> /dev/null ; \
 						then \
 							completedTaskCount=\$((\${completedTaskCount} + 1)) ; \
 						fi ; \

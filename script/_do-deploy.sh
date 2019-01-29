@@ -8,7 +8,7 @@ deployCmd="\
 	if docker stack ls > /dev/null 2> /dev/null ; \
 	then \
 		composeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g') && \
-		env -i \$(grep -v '^#\\| ' .env | xargs) \
+		env -i \$(${GREP_BIN} -v '^#\\| ' .env | xargs) \
 			docker stack deploy -c \${composeFileSplitted} --with-registry-auth ${STACK:-${SERVICE}} ; \
 	else \
 		docker-compose stop ${SERVICE} && \
