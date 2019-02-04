@@ -5,6 +5,7 @@ SERVICES_TO_CHECK="${SERVICES_TO_CHECK:-${STACK:-${SERVICE}}}"
 echo -e "\n${INFO_COLOR}Checking deployment of services [${DATA_COLOR} ${SERVICES_TO_CHECK} ${INFO_COLOR}] at ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
 
 checkDeployCmd="\
+	success='' ; \
 	for serviceToCheck in \${SERVICES_TO_CHECK} ; \
 	do \
 		echo -e \"\\n${INFO_COLOR}Checking deployment of service ${DATA_COLOR}\${serviceToCheck}${INFO_COLOR} ..${NULL_COLOR}\" ; \
@@ -14,13 +15,13 @@ checkDeployCmd="\
 		do \
 			if docker stack ls > /dev/null 2> /dev/null ; \
 			then \
-				stackServices=\$(docker service ls -f name=${serviceToCheck} --format '{{.Replicas}}') ; \
+				stackServices=\$(docker service ls -f name=\${serviceToCheck} --format '{{.Replicas}}') ; \
 				serviceToCheckReplication=\$(echo \"\${stackServices}\" | head -1) ; \
-				runningServiceName=\$(docker service ls -f name=${serviceToCheck} --format '{{.Name}}' | head -1) ; \
+				runningServiceName=\$(docker service ls -f name=\${serviceToCheck} --format '{{.Name}}' | head -1) ; \
 				serviceCount=\$(echo \"\${stackServices}\" | ${GREP_BIN} -cE '.+') ; \
 				if [ \${serviceCount} -gt 1 -a \${i} -eq 1 ] ; \
 				then \
-					echo -e \"${FAIL_COLOR}Found ${DATA_COLOR}\${serviceCount}${FAIL_COLOR} services filtering by name ${DATA_COLOR}${serviceToCheck}${FAIL_COLOR},${NULL_COLOR}\" ; \
+					echo -e \"${FAIL_COLOR}Found ${DATA_COLOR}\${serviceCount}${FAIL_COLOR} services filtering by name ${DATA_COLOR}\${serviceToCheck}${FAIL_COLOR},${NULL_COLOR}\" ; \
 					echo -e \"  ${FAIL_COLOR}will check only the service exactly named ${DATA_COLOR}\${runningServiceName}${NULL_COLOR}\\n\" ; \
 				fi ; \
 				runningServiceCount=\$(echo \"\${serviceToCheckReplication}\" | ${GREP_BIN} -cE '([0-9]+)\/\1') ; \
@@ -48,7 +49,7 @@ checkDeployCmd="\
 			else \
 				runningContainersIds=\$(docker ps -f status=running --format '{{.ID}}' --no-trunc) ; \
 				successfullyExitedContainersIds=\$(docker ps -a -f exited=0 --format '{{.ID}}' --no-trunc) ; \
-				serviceContainerId=\$(docker inspect --format='{{.ID}}' ${serviceToCheck} 2> /dev/null) ; \
+				serviceContainerId=\$(docker inspect --format='{{.ID}}' \${serviceToCheck} 2> /dev/null) ; \
 				runningService=\$(echo \"\${runningContainersIds}\" | ${GREP_BIN} \"\${serviceContainerId:--}\") ; \
 				successfullyExitedService=\$(echo \"\${successfullyExitedContainersIds}\" | \
 					${GREP_BIN} \"\${serviceContainerId:--}\") ; \
@@ -62,18 +63,33 @@ checkDeployCmd="\
 				hits=\$((\${hits} + 1)) && \
 				if [ \"\${hits}\" -eq \"${STATUS_CHECK_MIN_HITS}\" ] ; \
 				then \
-					echo -e \"${PASS_COLOR}Service ${DATA_COLOR}${serviceToCheck}${PASS_COLOR} is running!${NULL_COLOR}\" && \
+					echo -e \"${PASS_COLOR}Service ${DATA_COLOR}\${serviceToCheck}${PASS_COLOR} is running!${NULL_COLOR}\" && \
 					echo -e \"  got ${PASS_COLOR}\${hits}/${STATUS_CHECK_MIN_HITS}${NULL_COLOR} status hits\" && \
-					exit 0 ; \
+					success=\"\${success} 1\" ; \
+					break ; \
 				fi ; \
 			else \
 				echo -e \"${FAIL_COLOR}[FAIL]${NULL_COLOR}\" ; \
 			fi ; \
 			sleep ${STATUS_CHECK_INTERVAL} ; \
 		done ; \
-		echo -e \"${FAIL_COLOR}Service ${DATA_COLOR}${serviceToCheck}${FAIL_COLOR} is not running!${NULL_COLOR}\" && \
+		echo -e \"${FAIL_COLOR}Service ${DATA_COLOR}\${serviceToCheck}${FAIL_COLOR} is not running!${NULL_COLOR}\" && \
 		echo -e \"  got ${FAIL_COLOR}\${hits}/${STATUS_CHECK_MIN_HITS}${NULL_COLOR} status hits\" && \
-		exit 1 ; \
+		success=\"\${success} 0\" ; \
+	done ; \
+	for serviceSuccess in \${success[*]} ; \
+	do \
+		if [ \${serviceSuccess} -eq 0 ] ; \
+		then \
+			exit 1 ; \
+		fi ; \
 	done"
 
-ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${checkDeployCmd}"
+if ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${checkDeployCmd}"
+then
+	echo -e "${PASS_COLOR}All services seems ok!${NULL_COLOR}"
+else
+	echo -e "${FAIL_COLOR}One or more services seems failed!${NULL_COLOR}"
+	ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
+	exit 1
+fi
