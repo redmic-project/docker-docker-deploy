@@ -9,7 +9,6 @@ checkDeployCmd="\
 	do \
 		echo -e \"\\n${INFO_COLOR}Checking deployment of service ${DATA_COLOR}\${serviceToCheck}${INFO_COLOR} ..${NULL_COLOR}\" ; \
 		echo -e \"  ${INFO_COLOR}retries ${DATA_COLOR}${STATUS_CHECK_RETRIES}${INFO_COLOR}, interval ${DATA_COLOR}${STATUS_CHECK_INTERVAL}${INFO_COLOR}s, hits ${DATA_COLOR}${STATUS_CHECK_MIN_HITS}${NULL_COLOR}\\n\" ; \
-
 		hits=0 && \
 		for i in \$(seq 1 ${STATUS_CHECK_RETRIES}) ; \
 		do \
