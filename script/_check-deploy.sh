@@ -4,12 +4,12 @@ SERVICES_TO_CHECK="${SERVICES_TO_CHECK:-${STACK:-${SERVICE}}}"
 
 echo -e "\n${INFO_COLOR}Checking deployment of services [${DATA_COLOR} ${SERVICES_TO_CHECK} ${INFO_COLOR}] at ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
 
-for serviceToCheck in ${SERVICES_TO_CHECK}
-do
-	echo -e "\n${INFO_COLOR}Checking deployment of service ${DATA_COLOR}${serviceToCheck}${INFO_COLOR} ..${NULL_COLOR}"
-	echo -e "  ${INFO_COLOR}retries ${DATA_COLOR}${STATUS_CHECK_RETRIES}${INFO_COLOR}, interval ${DATA_COLOR}${STATUS_CHECK_INTERVAL}${INFO_COLOR}s, hits ${DATA_COLOR}${STATUS_CHECK_MIN_HITS}${NULL_COLOR}\n"
+checkDeployCmd="\
+	for serviceToCheck in ${SERVICES_TO_CHECK} ; \
+	do \
+		echo -e \"\\n${INFO_COLOR}Checking deployment of service ${DATA_COLOR}${serviceToCheck}${INFO_COLOR} ..${NULL_COLOR}\" ; \
+		echo -e \"  ${INFO_COLOR}retries ${DATA_COLOR}${STATUS_CHECK_RETRIES}${INFO_COLOR}, interval ${DATA_COLOR}${STATUS_CHECK_INTERVAL}${INFO_COLOR}s, hits ${DATA_COLOR}${STATUS_CHECK_MIN_HITS}${NULL_COLOR}\\n\" ; \
 
-	checkDeployCmd="\
 		hits=0 && \
 		for i in \$(seq 1 ${STATUS_CHECK_RETRIES}) ; \
 		do \
@@ -74,10 +74,7 @@ do
 		done ; \
 		echo -e \"${FAIL_COLOR}Service ${DATA_COLOR}${serviceToCheck}${FAIL_COLOR} is not running!${NULL_COLOR}\" && \
 		echo -e \"  got ${FAIL_COLOR}\${hits}/${STATUS_CHECK_MIN_HITS}${NULL_COLOR} status hits\" && \
-		exit 1"
+		exit 1 ; \
+	done"
 
-	ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${checkDeployCmd}"
-	wait
-done
-
-ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
+ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${checkDeployCmd}"
