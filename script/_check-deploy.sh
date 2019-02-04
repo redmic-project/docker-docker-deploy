@@ -77,6 +77,7 @@ do
 		exit 1"
 
 	ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${checkDeployCmd}"
+	wait
 done
 
 ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
