@@ -6,7 +6,7 @@ echo -e "\n${INFO_COLOR}Checking deployment of services [${DATA_COLOR} ${SERVICE
 
 checkDeployCmd="\
 	success='' ; \
-	for serviceToCheck in \${SERVICES_TO_CHECK} ; \
+	for serviceToCheck in ${SERVICES_TO_CHECK} ; \
 	do \
 		echo -e \"\\n${INFO_COLOR}Checking deployment of service ${DATA_COLOR}\${serviceToCheck}${INFO_COLOR} ..${NULL_COLOR}\" ; \
 		echo -e \"  ${INFO_COLOR}retries ${DATA_COLOR}${STATUS_CHECK_RETRIES}${INFO_COLOR}, interval ${DATA_COLOR}${STATUS_CHECK_INTERVAL}${INFO_COLOR}s, hits ${DATA_COLOR}${STATUS_CHECK_MIN_HITS}${NULL_COLOR}\\n\" ; \
