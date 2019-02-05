@@ -21,10 +21,10 @@ cleanDeployCmd="ssh ${SSH_PARAMS} \"${SSH_REMOTE}\" \"rm -rf ${DEPLOY_HOME}\""
 
 if ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${deployCmd}"
 then
-	echo -e "${PASS_COLOR}Service successfully deployed!${NULL_COLOR}"
+	echo -e "${PASS_COLOR}Services successfully deployed!${NULL_COLOR}"
 	eval "${cleanDeployCmd}"
 else
-	echo -e "${FAIL_COLOR}Service deploy failed!${NULL_COLOR}"
+	echo -e "${FAIL_COLOR}Services deploy failed!${NULL_COLOR}"
 	eval "${cleanDeployCmd}"
 	ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
 	exit 1

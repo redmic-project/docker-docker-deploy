@@ -22,7 +22,7 @@ For REDMIC, we use this image from GitLabCI configuration, but you can use it di
 
 ```
 $ docker run --rm --name docker-deploy \
-	-e STACK=your-stack-name -e SSH_REMOTE=ssh-user@ssh-host -e GITLAB_DEPLOY_KEY=<your-private-key> \
+	-e STACK=your-stack-name -e SSH_REMOTE=ssh-user@ssh-host -e GITLAB_DEPLOY_KEY="<your-private-key>" \
 	registry.gitlab.com/redmic-project/docker/docker-deploy:latest \
 	<action> <VAR1>=<value1> <VAR2>=<value2> ...
 ```
@@ -39,6 +39,7 @@ For environment variables, you may define these variables (**bold** are mandator
 * *DEPLOY_DIR_NAME*: Default `deploy`.
 * *DEFAULT_DEPLOY_FILES*: Default `docker-compose*.yml .env`.
 * *REGISTRY_USER*: Default `gitlab-ci-token`.
+* *SERVICES_TO_CHECK*: Names of services to check, separated by space.
 * *STATUS_CHECK_RETRIES*: Default `10`.
 * *STATUS_CHECK_INTERVAL*: Default `20`.
 * *STATUS_CHECK_DELAY*: Default `120`.
