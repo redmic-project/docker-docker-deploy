@@ -6,7 +6,7 @@ echo -e "\n${INFO_COLOR}Preparing deploy configuration and resources ..${NULL_CO
 if [ -d "${DEPLOY_DIR_NAME}" ]
 then
 	cd "${DEPLOY_DIR_NAME}"
-	deployFiles="-r ./."
+	deployFiles="-r *"
 else
 	deployFiles=${DEFAULT_DEPLOY_FILES}
 fi
