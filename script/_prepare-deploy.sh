@@ -40,14 +40,20 @@ else
 fi
 
 randomValue="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)"
-DEPLOY_HOME="${DEPLOY_PATH}/docker-deploy/${randomValue}"
+deployHomeParent="${DEPLOY_PATH}/docker-deploy"
+DEPLOY_HOME="${deployHomeParent}/${randomValue}"
 
 echo -e "\n${INFO_COLOR}Sending deploy resources to remote ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
 echo -e "  ${INFO_COLOR}deploy path [ ${DATA_COLOR}${DEPLOY_HOME}${INFO_COLOR} ]${NULL_COLOR}"
 echo -e "  ${INFO_COLOR}deploy files [ ${DATA_COLOR}${deployFiles}${INFO_COLOR} ]${NULL_COLOR}\n"
 
 # Se crea el directorio donde guardar los ficheros de despliegue del servicio.
-createDirCmd="mkdir -p ${DEPLOY_HOME}"
+if [ -d "${DEPLOY_DIR_NAME}" ]
+then
+	createDirCmd="mkdir -p ${deployHomeParent}"
+else
+	createDirCmd="mkdir -p ${DEPLOY_HOME}"
+fi
 if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${createDirCmd}
 then
 	echo -e "${FAIL_COLOR}Deploy path ${DATA_COLOR}${DEPLOY_HOME}${FAIL_COLOR} creation failed!${NULL_COLOR}"
