@@ -31,6 +31,8 @@ checkDeployCmd="\
 						echo -e \"${FAIL_COLOR}Cannot find running service by name ${DATA_COLOR}\${serviceToCheck}${NULL_COLOR}\\n\" ; \
 					fi ; \
 					serviceIsRunning=\"[ 0 -ne 0 ]\" ; \
+					success=\"\${success} 0\" ; \
+					break ; \
 				else \
 					runningServiceCount=\$(echo \"\${serviceToCheckReplication}\" | ${GREP_BIN} -cE '([0-9]+)\/\1') ; \
 					serviceIsRunning=\"[ \${runningServiceCount} -eq 1 ]\" ; \
@@ -77,6 +79,11 @@ checkDeployCmd="\
 					success=\"\${success} 1\" ; \
 					break ; \
 				fi ; \
+				if [ \"\${i}\" -eq \"${STATUS_CHECK_RETRIES}\" ] ; \
+				then \
+					success=\"\${success} 0\" ; \
+					break ; \
+				fi ; \
 			else \
 				echo -e \"${FAIL_COLOR}[FAIL]${NULL_COLOR}\" ; \
 				if [ \"\${i}\" -eq \"${STATUS_CHECK_RETRIES}\" ] ; \
@@ -84,6 +91,7 @@ checkDeployCmd="\
 					echo -e \"\\n${FAIL_COLOR}Service ${DATA_COLOR}\${serviceToCheck}${FAIL_COLOR} is not running!${NULL_COLOR}\" && \
 					echo -e \"  got ${FAIL_COLOR}\${hits}/${STATUS_CHECK_MIN_HITS}${NULL_COLOR} status hits\" && \
 					success=\"\${success} 0\" ; \
+					break ; \
 				fi ; \
 			fi ; \
 			sleep ${STATUS_CHECK_INTERVAL} ; \
