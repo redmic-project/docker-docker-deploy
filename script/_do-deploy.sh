@@ -4,9 +4,9 @@ echo -e "\n${INFO_COLOR}Deploying at remote target ${DATA_COLOR}${remoteHost}${I
 
 deployCmd="\
 	cd ${DEPLOY_HOME} && \
-	if [ ! -z \"${REGISTRY_USER}\" -a ! -z \"${REGISTRY_PASS}\" -a ! -z \"${REGISTRY_URL}\" ] ; \
+	if [ ! -z \"${REGISTRY_USER}\" ] ; \
 	then \
-		docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASS} ${REGISTRY_URL} ; \
+		docker login -u \"${REGISTRY_USER}\" -p \"${REGISTRY_PASS}\" ${REGISTRY_URL} ; \
 		deployAuthParam=\"--with-registry-auth\" ; \
 	else \
 		deployAuthParam=\"\" ; \

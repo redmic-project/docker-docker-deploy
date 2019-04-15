@@ -38,9 +38,9 @@ For environment variables, you may define these variables (**bold** are mandator
 * *DEPLOY_PATH*: Path in remote host where deployment directory (containing temporary files) will be created. Default `~`.
 * *DEPLOY_DIR_NAME*: Name of directory containing files needed for deployment. Default `deploy`.
 * *DEFAULT_DEPLOY_FILES*: Files needed for deployment, if `${DEPLOY_DIR_NAME}` does not exist. Default `docker-compose*.yml .env`.
-* *REGISTRY_URL*: Address of Docker registry where Docker images to deploy are stored. Required for private registries.
-* *REGISTRY_USER*: Docker registry username of user with read permissions. Required for private registries.
-* *REGISTRY_PASS*: Docker registry user password of user with read permissions. Required for private registries.
+* *REGISTRY_URL*: Address of Docker registry where Docker images to deploy are stored. Leave it empty to use Docker Hub registry.
+* *REGISTRY_USER*: Docker registry username of user with read permissions. **Required** for private registries.
+* *REGISTRY_PASS*: Docker registry user password of user with read permissions. **Required** for private registries.
 * *SERVICES_TO_CHECK*: Names of services to check after deployment, separated by space.
 * *STATUS_CHECK_RETRIES*: Default `10`.
 * *STATUS_CHECK_INTERVAL*: Default `20`.

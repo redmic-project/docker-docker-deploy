@@ -20,9 +20,9 @@ relaunchCmd="\
 		echo -e \"${FAIL_COLOR}Service image not found!${NULL_COLOR}\" && \
 		exit 1 ; \
 	fi ; \
-	if [ ! -z \"${REGISTRY_USER}\" -a ! -z \"${REGISTRY_PASS}\" -a ! -z \"${REGISTRY_URL}\" ] ; \
+	if [ ! -z \"${REGISTRY_USER}\" ] ; \
 	then \
-		docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASS} ${REGISTRY_URL} ; \
+		docker login -u \"${REGISTRY_USER}\" -p \"${REGISTRY_PASS}\" ${REGISTRY_URL} ; \
 	fi ; \
 	docker pull \${imageNameAndTag} && \
 	imageDigest=\$(docker images --digests --format '{{.Digest}}' \${imageName} | head -1) && \
