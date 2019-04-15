@@ -20,7 +20,10 @@ relaunchCmd="\
 		echo -e \"${FAIL_COLOR}Service image not found!${NULL_COLOR}\" && \
 		exit 1 ; \
 	fi ; \
-	docker login -u ${REGISTRY_USER} -p ${CI_JOB_TOKEN} ${CI_REGISTRY} && \
+	if [ ! -z \"${REGISTRY_USER}\" -a ! -z \"${REGISTRY_PASS}\" -a ! -z \"${REGISTRY_URL}\" ] ; \
+	then \
+		docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASS} ${REGISTRY_URL} ; \
+	fi ; \
 	docker pull \${imageNameAndTag} && \
 	imageDigest=\$(docker images --digests --format '{{.Digest}}' \${imageName} | head -1) && \
 	docker service update -q --force --image \${imageName}@\${imageDigest} ${SERVICE}"
