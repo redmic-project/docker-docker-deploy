@@ -4,12 +4,18 @@ echo -e "\n${INFO_COLOR}Deploying at remote target ${DATA_COLOR}${remoteHost}${I
 
 deployCmd="\
 	cd ${DEPLOY_HOME} && \
-	docker login -u ${REGISTRY_USER} -p ${CI_JOB_TOKEN} ${CI_REGISTRY} && \
+	if [ ! -z \"${REGISTRY_USER}\" ] ; \
+	then \
+		docker login -u \"${REGISTRY_USER}\" -p \"${REGISTRY_PASS}\" ${REGISTRY_URL} ; \
+		deployAuthParam=\"--with-registry-auth\" ; \
+	else \
+		deployAuthParam=\"\" ; \
+	fi ; \
 	if docker stack ls > /dev/null 2> /dev/null ; \
 	then \
 		composeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g') && \
 		env -i \$(${GREP_BIN} -v '^#\\| ' .env | xargs) \
-			docker stack deploy -c \${composeFileSplitted} --with-registry-auth ${STACK:-${SERVICE}} ; \
+			docker stack deploy -c \${composeFileSplitted} \${deployAuthParam} ${STACK:-${SERVICE}} ; \
 	else \
 		docker-compose stop ${SERVICE} && \
 		docker-compose rm -f ${SERVICE} && \

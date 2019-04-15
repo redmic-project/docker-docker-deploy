@@ -22,7 +22,7 @@ For REDMIC, we use this image from GitLabCI configuration, but you can use it di
 
 ```
 $ docker run --rm --name docker-deploy \
-	-e STACK=your-stack-name -e SSH_REMOTE=ssh-user@ssh-host -e GITLAB_DEPLOY_KEY="<your-private-key>" \
+	-e STACK=your-stack-name -e SSH_REMOTE=ssh-user@ssh-host -e DEPLOY_KEY="<your-private-key>" \
 	registry.gitlab.com/redmic-project/docker/docker-deploy:latest \
 	<action> <VAR1>=<value1> <VAR2>=<value2> ...
 ```
@@ -33,13 +33,15 @@ For environment variables, you may define these variables (**bold** are mandator
 
 * **STACK** / **SERVICE**: Name of Docker stack (Swarm mode) or service (standard mode) to deploy.
 * **SSH_REMOTE**: SSH user and host of remote machine where you are going to deploy.
-* **GITLAB_DEPLOY_KEY**: Private key paired with a public key accepted by remote machine, used to authenticate.
-* *COMPOSE_FILE*: Default `docker-compose.yml`.
-* *DEPLOY_PATH*: Default `~`.
-* *DEPLOY_DIR_NAME*: Default `deploy`.
-* *DEFAULT_DEPLOY_FILES*: Default `docker-compose*.yml .env`.
-* *REGISTRY_USER*: Default `gitlab-ci-token`.
-* *SERVICES_TO_CHECK*: Names of services to check, separated by space.
+* **DEPLOY_KEY**: Private key paired with a public key accepted by remote machine, used to authenticate.
+* *COMPOSE_FILE*: Name of Docker Compose file with deployment definition. Multiple files are supported, separated by colon (`:`). Default `docker-compose.yml`.
+* *DEPLOY_PATH*: Path in remote host where deployment directory (containing temporary files) will be created. Default `~`.
+* *DEPLOY_DIR_NAME*: Name of directory containing files needed for deployment. Default `deploy`.
+* *DEFAULT_DEPLOY_FILES*: Files needed for deployment, if `${DEPLOY_DIR_NAME}` does not exist. Default `docker-compose*.yml .env`.
+* *REGISTRY_URL*: Address of Docker registry where Docker images to deploy are stored. Leave it empty to use Docker Hub registry.
+* *REGISTRY_USER*: Docker registry username of user with read permissions. **Required** for private registries.
+* *REGISTRY_PASS*: Docker registry user password of user with read permissions. **Required** for private registries.
+* *SERVICES_TO_CHECK*: Names of services to check after deployment, separated by space.
 * *STATUS_CHECK_RETRIES*: Default `10`.
 * *STATUS_CHECK_INTERVAL*: Default `20`.
 * *STATUS_CHECK_DELAY*: Default `120`.
