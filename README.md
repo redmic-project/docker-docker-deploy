@@ -46,6 +46,7 @@ For environment variables, you may define these variables (**bold** are mandator
 * *STATUS_CHECK_INTERVAL*: Default `20`.
 * *STATUS_CHECK_DELAY*: Default `120`.
 * *STATUS_CHECK_MIN_HITS*: Default `3`.
+* *USE_IMAGE_DIGEST*: Update service image using digest data when relaunching. Default `0`.
 * *GREP_BIN*: Default `grep`.
 
 Action may be one of `deploy.sh`, `create-nets.sh` or `relaunch.sh`, and parameters with variable/value depends on your service needs.
