@@ -14,8 +14,9 @@ deployCmd="\
 	if docker stack ls > /dev/null 2> /dev/null ; \
 	then \
 		composeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g') && \
-		env -i \"\$(${GREP_BIN} -v '^[#| ]' .env | xargs)\" \
-			docker stack deploy -c \${composeFileSplitted} \${deployAuthParam} ${STACK:-${SERVICE}} ; \
+		${GREP_BIN} -v '^[#| ]' .env | sed -r 's/(\w+)=(.*)/export \1=\"\2\"/g' > .env-deploy && \
+		env -i /bin/sh -c \". \$(pwd)/.env-deploy && \
+			docker stack deploy -c \${composeFileSplitted} \${deployAuthParam} ${STACK:-${SERVICE}}\" ; \
 	else \
 		docker-compose stop ${SERVICE} && \
 		docker-compose rm -f ${SERVICE} && \
