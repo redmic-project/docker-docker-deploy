@@ -20,16 +20,25 @@ fi
 echo -e "\n${INFO_COLOR}Setting environment variables to local and remote environments ..${NULL_COLOR}"
 echo -en "  ${INFO_COLOR}variable names [ ${DATA_COLOR}SERVICE${INFO_COLOR}, ${DATA_COLOR}STACK${INFO_COLOR}"
 
-# Los argumentos pasados (opcionales) se tratan como variables de entorno.
-# Se prepara el fichero .env para usarlas en la máquina destino y se setean en este entorno también.
+# Se toma como base el entorno actual, incluyendo solo las variables que coincidan con el prefijo deseado.
 envDefs="SERVICE=${SERVICE}\\nSTACK=${STACK}"
+currEnv=$(env | grep "^${ENV_PREFIX}")
+for currEnvItem in ${currEnv}
+do
+	cleanItem=$(echo "${currEnvItem}" | sed "s/${ENV_PREFIX}//g")
+	envDefs="${envDefs}\\n${cleanItem}"
+	variableName=$(echo "${cleanItem}" | cut -d '=' -f 1)
+	echo -en "${INFO_COLOR}, ${DATA_COLOR}${variableName}${INFO_COLOR}"
+done
+# Los argumentos pasados (opcionales) se tratan como variables de entorno. Sobreescriben los valores del entorno actual.
 for arg in "${@}"
 do
 	export "${arg}"
 	envDefs="${envDefs}\\n${arg}"
-	variableName=$(echo "$arg" | cut -f 1 -d '=')
+	variableName=$(echo "${arg}" | cut -d '=' -f 1)
 	echo -en "${INFO_COLOR}, ${DATA_COLOR}${variableName}${INFO_COLOR}"
 done
+# Se prepara el fichero .env para usarlas en la máquina destino y se setean en este entorno también.
 echo -e ${envDefs} >> .env
 echo -e " ]${NULL_COLOR}"
 

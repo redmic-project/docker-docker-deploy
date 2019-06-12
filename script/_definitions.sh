@@ -1,5 +1,6 @@
 #!/bin/sh
 
+ENV_PREFIX="${ENV_PREFIX:-DD_}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml}"
 DEPLOY_PATH="${DEPLOY_PATH:-~}"
 DEPLOY_DIR_NAME="${DEPLOY_DIR_NAME:-deploy}"
