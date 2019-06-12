@@ -22,13 +22,17 @@ echo -en "  ${INFO_COLOR}variable names [ ${DATA_COLOR}SERVICE${INFO_COLOR}, ${D
 
 # Se toma como base el entorno actual, incluyendo solo las variables cuyo nombre comience con el prefijo deseado.
 envDefs="SERVICE=${SERVICE}\\nSTACK=${STACK}"
-currEnv=$(env | grep "^${ENV_PREFIX}" | sed -E "s/${ENV_PREFIX}([^=]+)=([^\n]*)/\1=\"\2\"/g")
+currEnv=$(env | grep "^${ENV_PREFIX}" | sed -E "s/${ENV_PREFIX}([^=]+)=([^\n]*)/\1=\"\2\"/g" | \
+	sed "s/ /${ENV_SPACE_REPLACEMENT_TEXT}/g")
+
 for currEnvItem in ${currEnv}
 do
-	envDefs="${envDefs}\\n${currEnvItem}"
-	variableName=$(echo "${currEnvItem}" | cut -d '=' -f 1)
+	cleanItem=$(echo "${currEnvItem}" | sed "s/${ENV_SPACE_REPLACEMENT_TEXT}/ /g")
+	envDefs="${envDefs}\\n${cleanItem}"
+	variableName=$(echo "${cleanItem}" | cut -d '=' -f 1)
 	echo -en "${INFO_COLOR}, ${DATA_COLOR}${variableName}${INFO_COLOR}"
 done
+
 # Los argumentos pasados (opcionales) se tratan como variables de entorno. Sobreescriben los valores del entorno actual.
 for arg in "${@}"
 do
@@ -37,6 +41,7 @@ do
 	variableName=$(echo "${arg}" | cut -d '=' -f 1)
 	echo -en "${INFO_COLOR}, ${DATA_COLOR}${variableName}${INFO_COLOR}"
 done
+
 # Se prepara el fichero .env para usarlas en la máquina destino y se setean en este entorno también.
 echo -e ${envDefs} >> .env
 echo -e " ]${NULL_COLOR}"
