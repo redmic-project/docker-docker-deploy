@@ -20,14 +20,13 @@ fi
 echo -e "\n${INFO_COLOR}Setting environment variables to local and remote environments ..${NULL_COLOR}"
 echo -en "  ${INFO_COLOR}variable names [ ${DATA_COLOR}SERVICE${INFO_COLOR}, ${DATA_COLOR}STACK${INFO_COLOR}"
 
-# Se toma como base el entorno actual, incluyendo solo las variables que coincidan con el prefijo deseado.
+# Se toma como base el entorno actual, incluyendo solo las variables cuyo nombre comience con el prefijo deseado.
 envDefs="SERVICE=${SERVICE}\\nSTACK=${STACK}"
-currEnv=$(env | grep "^${ENV_PREFIX}")
+currEnv=$(env | grep "^${ENV_PREFIX}" | sed -E "s/${ENV_PREFIX}([^=]+)=([^\n]*)/\1=\"\2\"/g")
 for currEnvItem in ${currEnv}
 do
-	cleanItem=$(echo "${currEnvItem}" | sed "s/${ENV_PREFIX}//g")
-	envDefs="${envDefs}\\n${cleanItem}"
-	variableName=$(echo "${cleanItem}" | cut -d '=' -f 1)
+	envDefs="${envDefs}\\n${currEnvItem}"
+	variableName=$(echo "${currEnvItem}" | cut -d '=' -f 1)
 	echo -en "${INFO_COLOR}, ${DATA_COLOR}${variableName}${INFO_COLOR}"
 done
 # Los argumentos pasados (opcionales) se tratan como variables de entorno. Sobreescriben los valores del entorno actual.
