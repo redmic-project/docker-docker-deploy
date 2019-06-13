@@ -36,7 +36,6 @@ done
 # Los argumentos pasados (opcionales) se tratan como variables de entorno. Sobreescriben los valores del entorno actual.
 for arg in "${@}"
 do
-	export "${arg}"
 	envDefs="${envDefs}\\n${arg}"
 	variableName=$(echo "${arg}" | cut -d '=' -f 1)
 	echo -en "${INFO_COLOR}, ${DATA_COLOR}${variableName}${INFO_COLOR}"
