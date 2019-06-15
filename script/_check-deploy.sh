@@ -13,7 +13,7 @@ checkDeployCmd="\
 		hits=0 && \
 		for i in \$(seq 1 ${STATUS_CHECK_RETRIES}) ; \
 		do \
-			if docker stack ls > /dev/null 2> /dev/null ; \
+			if [ ${FORCE_DOCKER_COMPOSE} -eq 0 ] && docker stack ls > /dev/null 2> /dev/null ; \
 			then \
 				stackServices=\$(docker service ls -f name=\${serviceToCheck} --format '{{.Replicas}}') ; \
 				serviceToCheckReplication=\$(echo \"\${stackServices}\" | head -1) ; \

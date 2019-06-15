@@ -49,6 +49,7 @@ You may define these environment variables (**bold** are mandatory):
 * *DEPLOY_PATH*: Path in remote host where deployment directory (containing temporary files) will be created. Default `~`.
 * *DEPLOY_DIR_NAME*: Name of directory containing files needed for deployment. Default `deploy`.
 * *DEFAULT_DEPLOY_FILES*: Files needed for deployment, if `${DEPLOY_DIR_NAME}` does not exist. Default `docker-compose*.yml .env`.
+* *FORCE_DOCKER_COMPOSE*: Use always standard mode with docker-compose instead of Docker Swarm, even if it is available on remote Docker environment. Default `0`.
 * *REGISTRY_URL*: Address of Docker registry where Docker images to deploy are stored. Leave it empty to use Docker Hub registry.
 * *REGISTRY_USER*: Docker registry username of user with read permissions. **Required** for private registries.
 * *REGISTRY_PASS*: Docker registry user password of user with read permissions. **Required** for private registries.

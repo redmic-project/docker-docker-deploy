@@ -11,7 +11,7 @@ deployCmd="\
 	else \
 		deployAuthParam=\"\" ; \
 	fi ; \
-	if docker stack ls > /dev/null 2> /dev/null ; \
+	if [ ${FORCE_DOCKER_COMPOSE} -eq 0 ] && docker stack ls > /dev/null 2> /dev/null ; \
 	then \
 		composeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g') && \
 		${GREP_BIN} -v '^[#| ]' .env | sed -r \"s/(\w+)=(.*)/export \1='\2'/g\" > .env-deploy && \
