@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SERVICES_TO_CHECK="${SERVICES_TO_CHECK:-${STACK:-${SERVICE}}}"
+SERVICES_TO_CHECK="${SERVICES_TO_CHECK:-${STACK}}"
 
 echo -e "\n${INFO_COLOR}Checking deployment of services [${DATA_COLOR} ${SERVICES_TO_CHECK} ${INFO_COLOR}] at ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
 

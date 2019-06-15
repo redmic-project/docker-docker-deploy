@@ -39,9 +39,10 @@ By script parameters you can set:
 
 You may define these environment variables (**bold** are mandatory):
 
-* **STACK** / **SERVICE**: Name of Docker stack (Swarm mode) or service (standard mode) to deploy.
+* **STACK**: Name of Docker stack (Swarm mode) or project (docker-compose mode) used to wrap deployed services.
 * **SSH_REMOTE**: SSH user and host of remote machine where you are going to deploy.
 * **DEPLOY_KEY**: Private key paired with a public key accepted by remote machine, used to authenticate.
+* *SERVICE*: Name of service to relaunch. **Required** for relaunch action.
 * *ENV_PREFIX*: Prefix used to identify variables to be defined in remote environment (without this prefix). Default `DD_`.
 * *ENV_SPACE_REPLACEMENT*: Unique string used to replace spaces into variable values while handling them. Default `<dd-space>`.
 * *COMPOSE_FILE*: Name of docker-compose file with deployment definition. Multiple files are supported, separated by colon (`:`). Default `docker-compose.yml`.

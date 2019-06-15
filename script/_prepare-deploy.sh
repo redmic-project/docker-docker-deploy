@@ -18,9 +18,9 @@ else
 fi
 
 echo -e "\n${INFO_COLOR}Setting environment variables to local and remote environments ..${NULL_COLOR}"
-echo -en "  ${INFO_COLOR}variable names [ ${DATA_COLOR}SERVICE${INFO_COLOR}, ${DATA_COLOR}STACK${INFO_COLOR}"
+echo -en "  ${INFO_COLOR}variable names [ ${DATA_COLOR}STACK${INFO_COLOR}"
 
-envDefs="SERVICE=${SERVICE}\\nSTACK=${STACK}"
+envDefs="STACK=${STACK}"
 
 addVariableToEnv() {
 	envDefs="${envDefs}\\n${1}"

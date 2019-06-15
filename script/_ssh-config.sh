@@ -1,7 +1,5 @@
 #!/bin/sh
 
-. _definitions.sh
-
 if [ -z "${SSH_REMOTE}" ]
 then
 	echo -e "${FAIL_COLOR}You must define 'SSH_REMOTE' in environment, with remote user and hostname (like 'ssh-user@ssh-remote')${NULL_COLOR}"
