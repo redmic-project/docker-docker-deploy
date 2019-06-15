@@ -18,11 +18,10 @@ deployCmd="\
 		env -i /bin/sh -c \". \$(pwd)/.env-deploy && \
 			docker stack deploy -c \${composeFileSplitted} \${deployAuthParam} ${STACK}\" ; \
 	else \
-		composeCmd=\"docker-compose -p ${STACK}\" ; \
-		\${composeCmd} stop && \
-		\${composeCmd} rm -f && \
-		\${composeCmd} pull && \
-		\${composeCmd} up -d ; \
+		docker-compose stop && \
+		docker-compose rm -f && \
+		docker-compose pull && \
+		docker-compose up -d ; \
 	fi"
 
 cleanDeployCmd="ssh ${SSH_PARAMS} \"${SSH_REMOTE}\" \"rm -rf ${DEPLOY_HOME}\""
