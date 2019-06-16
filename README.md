@@ -43,6 +43,7 @@ You may define these environment variables (**bold** are mandatory):
 * **SSH_REMOTE**: SSH user and host of remote machine where you are going to deploy.
 * **DEPLOY_KEY**: Private key paired with a public key accepted by remote machine, used to authenticate.
 * *SERVICE*: Name of service to relaunch. **Required** for relaunch action.
+* *SERVICES_TO_DEPLOY*: Names of services to deploy, separated by space. Only for standard mode (docker-compose).
 * *ENV_PREFIX*: Prefix used to identify variables to be defined in remote environment (without this prefix). Default `DD_`.
 * *ENV_SPACE_REPLACEMENT*: Unique string used to replace spaces into variable values while handling them. Default `<dd-space>`.
 * *COMPOSE_FILE*: Name of docker-compose file with deployment definition. Multiple files are supported, separated by colon (`:`). Default `docker-compose.yml`.
