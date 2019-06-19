@@ -1,10 +1,14 @@
 #!/bin/sh
 
+ENV_PREFIX="${ENV_PREFIX:-DD_}"
+ENV_SPACE_REPLACEMENT="${ENV_SPACE_REPLACEMENT:-<dd-space>}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml}"
 DEPLOY_PATH="${DEPLOY_PATH:-~}"
 DEPLOY_DIR_NAME="${DEPLOY_DIR_NAME:-deploy}"
 DEFAULT_DEPLOY_FILES="${DEFAULT_DEPLOY_FILES:-docker-compose*.yml .env}"
+FORCE_DOCKER_COMPOSE="${FORCE_DOCKER_COMPOSE:-0}"
 
+SERVICES_TO_CHECK="${SERVICES_TO_CHECK:-${STACK}}"
 STATUS_CHECK_RETRIES="${STATUS_CHECK_RETRIES:-10}"
 STATUS_CHECK_INTERVAL="${STATUS_CHECK_INTERVAL:-20}"
 STATUS_CHECK_DELAY="${STATUS_CHECK_DELAY:-120}"
@@ -23,5 +27,3 @@ NULL_COLOR='\033[0m'
 SSH_PARAMS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=error \
 	-o "ControlPath=\"/ssh_connection_socket_%h_%p_%r\"" -o ControlMaster=auto \
 	-o ControlPersist=${SSH_CONTROL_PERSIST}"
-
-SCRIPTS_PATH="/usr/bin/"

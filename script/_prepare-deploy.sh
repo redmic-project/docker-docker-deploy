@@ -18,21 +18,34 @@ else
 fi
 
 echo -e "\n${INFO_COLOR}Setting environment variables to local and remote environments ..${NULL_COLOR}"
-echo -en "  ${INFO_COLOR}variable names [ ${DATA_COLOR}SERVICE${INFO_COLOR}, ${DATA_COLOR}STACK${INFO_COLOR}"
+echo -en "  ${INFO_COLOR}variable names [ ${DATA_COLOR}STACK${INFO_COLOR}"
 
-# Los argumentos pasados (opcionales) se tratan como variables de entorno.
-# Se prepara el fichero .env para usarlas en la máquina destino y se setean en este entorno también.
-envDefs="SERVICE=${SERVICE}\\nSTACK=${STACK}"
+envDefs="STACK=${STACK}"
+
+addVariableToEnv() {
+	envDefs="${envDefs}\\n${1}"
+	variableName=$(echo "${1}" | cut -d '=' -f 1)
+	echo -en "${INFO_COLOR}, ${DATA_COLOR}${variableName}${INFO_COLOR}"
+}
+
+# Se toma como base el entorno actual, incluyendo solo las variables cuyo nombre comience con el prefijo deseado.
+currEnv=$(env | grep "^${ENV_PREFIX}" | sed "s/${ENV_PREFIX}//g" | sed "s/ /${ENV_SPACE_REPLACEMENT}/g")
+for currEnvItem in ${currEnv}
+do
+	cleanItem=$(echo "${currEnvItem}" | sed "s/${ENV_SPACE_REPLACEMENT}/ /g")
+	addVariableToEnv "${cleanItem}"
+done
+
+# Los argumentos pasados (opcionales) se tratan como variables. Sobreescriben a los valores procedentes del entorno.
 for arg in "${@}"
 do
-	export "${arg}"
-	envDefs="${envDefs}\\n${arg}"
-	variableName=$(echo "$arg" | cut -f 1 -d '=')
-	echo -en "${INFO_COLOR}, ${DATA_COLOR}${variableName}${INFO_COLOR}"
+	addVariableToEnv "${arg}"
 done
-echo -e ${envDefs} >> .env
-echo -e " ]${NULL_COLOR}"
 
+# Se prepara el fichero .env para usarlas en la máquina destino y se setean en este entorno también.
+echo -e ${envDefs} >> .env
+
+echo -e " ]${NULL_COLOR}"
 echo -e "\n${INFO_COLOR}Checking deploy configuration in docker-compose files ..${NULL_COLOR}"
 echo -e "  ${INFO_COLOR}compose files [ ${DATA_COLOR}${COMPOSE_FILE}${INFO_COLOR} ]${NULL_COLOR}\n"
 

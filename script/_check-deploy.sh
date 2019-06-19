@@ -1,7 +1,5 @@
 #!/bin/sh
 
-SERVICES_TO_CHECK="${SERVICES_TO_CHECK:-${STACK:-${SERVICE}}}"
-
 echo -e "\n${INFO_COLOR}Checking deployment of services [${DATA_COLOR} ${SERVICES_TO_CHECK} ${INFO_COLOR}] at ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
 
 checkDeployCmd="\
@@ -13,7 +11,7 @@ checkDeployCmd="\
 		hits=0 && \
 		for i in \$(seq 1 ${STATUS_CHECK_RETRIES}) ; \
 		do \
-			if docker stack ls > /dev/null 2> /dev/null ; \
+			if [ ${FORCE_DOCKER_COMPOSE} -eq 0 ] && docker stack ls > /dev/null 2> /dev/null ; \
 			then \
 				stackServices=\$(docker service ls -f name=\${serviceToCheck} --format '{{.Replicas}}') ; \
 				serviceToCheckReplication=\$(echo \"\${stackServices}\" | head -1) ; \

@@ -11,17 +11,19 @@ deployCmd="\
 	else \
 		deployAuthParam=\"\" ; \
 	fi ; \
-	if docker stack ls > /dev/null 2> /dev/null ; \
+	if [ ${FORCE_DOCKER_COMPOSE} -eq 0 ] && docker stack ls > /dev/null 2> /dev/null ; \
 	then \
 		composeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g') && \
 		${GREP_BIN} -v '^[#| ]' .env | sed -r \"s/(\w+)=(.*)/export \1='\2'/g\" > .env-deploy && \
 		env -i /bin/sh -c \". \$(pwd)/.env-deploy && \
-			docker stack deploy -c \${composeFileSplitted} \${deployAuthParam} ${STACK:-${SERVICE}}\" ; \
+			docker stack deploy -c \${composeFileSplitted} \${deployAuthParam} ${STACK}\" ; \
 	else \
-		docker-compose stop ${SERVICE} && \
-		docker-compose rm -f ${SERVICE} && \
-		docker-compose pull ${SERVICE} && \
-		docker-compose up -d ${SERVICE} ; \
+		composeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -f /g') && \
+		composeCmd=\"docker-compose -f \${composeFileSplitted} -p ${STACK}\" && \
+		\${composeCmd} stop ${SERVICES_TO_DEPLOY} && \
+		\${composeCmd} rm -f ${SERVICES_TO_DEPLOY} && \
+		\${composeCmd} pull ${SERVICES_TO_DEPLOY} && \
+		\${composeCmd} up -d ${SERVICES_TO_DEPLOY} ; \
 	fi"
 
 cleanDeployCmd="ssh ${SSH_PARAMS} \"${SSH_REMOTE}\" \"rm -rf ${DEPLOY_HOME}\""
