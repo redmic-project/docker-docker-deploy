@@ -23,8 +23,10 @@ For REDMIC, we use this image into CI/CD configuration. Deploy jobs are defined 
 
 ```
 $ docker run --rm --name docker-deploy \
-	-e STACK=your-stack-name -e SSH_REMOTE=ssh-user@host -e DEPLOY_KEY="<your-private-key>" \
+	-e SSH_REMOTE=ssh-user@host -e DEPLOY_KEY="<your-private-key>" \
+	-e STACK=your-stack-name \
 	-v $(pwd)/docker-compose.yml:/docker-compose.yml \
+	-v $(pwd)/.env:/.env \
 	redmic/docker-docker-deploy:latest \
 	<action> <arg1> <arg2> ...
 ```
@@ -59,6 +61,7 @@ You may define these environment variables (**bold** are mandatory):
 * *ENV_PREFIX*: Prefix used to identify variables to be defined in remote environment and service, available there without this prefix. Change this if default value collides with the beginning of your variable names. Default `DD_`.
 * *ENV_SPACE_REPLACEMENT*: Unique string (change this if that is not true for you) used to replace spaces into variable values while handling them. Default `<dd-space>`.
 * *FORCE_DOCKER_COMPOSE*: Use always standard (*docker-compose*) mode instead of Docker *Swarm*, even if it is available on remote Docker environment. Default `0`.
+* *OMIT_CLEAN_DEPLOY*: Leave at remote host deployment resources after doing a successful deploy. Useful when using bind mounts or *docker-compose* secrets (pointing to static content in deployment resources). Default `0`.
 * *GREP_BIN*: Path to *grep* binary in remote host. Default `grep`.
 * *REGISTRY_PASS*: Docker registry password, corresponding to a user with read permissions. **Required** for private registry or repository.
 * *REGISTRY_URL*: Docker registry address, where Docker must log in to retrieve images. Useful only when using private registry or repository. Default is empty, to use Docker Hub registry.
