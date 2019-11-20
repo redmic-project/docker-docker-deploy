@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo -e "\n${INFO_COLOR}Preparing deploy configuration and resources ..${NULL_COLOR}"
+echo -e "\n${INFO_COLOR}Preparing deployment configuration and resources ..${NULL_COLOR}"
 
 randomValue="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)"
 deployHomeParent="${DEPLOY_PATH}/docker-deploy"
@@ -46,7 +46,7 @@ done
 echo -e ${envDefs} >> .env
 
 echo -e " ]${NULL_COLOR}"
-echo -e "\n${INFO_COLOR}Checking deploy configuration in docker-compose files ..${NULL_COLOR}"
+echo -e "\n${INFO_COLOR}Checking deployment configuration in docker-compose files ..${NULL_COLOR}"
 echo -e "  ${INFO_COLOR}compose files [ ${DATA_COLOR}${COMPOSE_FILE}${INFO_COLOR} ]${NULL_COLOR}\n"
 
 # Antes de continuar, se comprueba que la configuración de despliegue sea válida.
@@ -58,14 +58,14 @@ else
 	exit 1
 fi
 
-echo -e "\n${INFO_COLOR}Sending deploy resources to remote ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
-echo -e "  ${INFO_COLOR}deploy path [ ${DATA_COLOR}${DEPLOY_HOME}${INFO_COLOR} ]${NULL_COLOR}"
-echo -e "  ${INFO_COLOR}deploy files [ ${DATA_COLOR}${deployFiles}${INFO_COLOR} ]${NULL_COLOR}\n"
+echo -e "\n${INFO_COLOR}Sending deployment resources to remote ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
+echo -e "  ${INFO_COLOR}deployment path [ ${DATA_COLOR}${DEPLOY_HOME}${INFO_COLOR} ]${NULL_COLOR}"
+echo -e "  ${INFO_COLOR}deployment files [ ${DATA_COLOR}${deployFiles}${INFO_COLOR} ]${NULL_COLOR}\n"
 
 # Se crea el directorio donde guardar los ficheros de despliegue del servicio.
 if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${createDirCmd}
 then
-	echo -e "${FAIL_COLOR}Deploy path ${DATA_COLOR}${DEPLOY_HOME}${FAIL_COLOR} creation failed!${NULL_COLOR}"
+	echo -e "${FAIL_COLOR}Deployment path ${DATA_COLOR}${DEPLOY_HOME}${FAIL_COLOR} creation failed!${NULL_COLOR}"
 	ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
 	exit 1
 fi
@@ -73,9 +73,9 @@ fi
 # Se envían a su destino los ficheros de despliegue del servicio.
 if scp ${SSH_PARAMS} ${deployFiles} "${SSH_REMOTE}:${DEPLOY_HOME}"
 then
-	echo -e "${PASS_COLOR}Deploy resources successfully sent!${NULL_COLOR}"
+	echo -e "${PASS_COLOR}Deployment resources successfully sent!${NULL_COLOR}"
 else
-	echo -e "${FAIL_COLOR}Deploy resources sending failed!${NULL_COLOR}"
+	echo -e "${FAIL_COLOR}Deployment resources sending failed!${NULL_COLOR}"
 	ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
 	exit 1
 fi
