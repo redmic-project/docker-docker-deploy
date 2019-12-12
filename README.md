@@ -74,6 +74,8 @@ You may define these environment variables (**bold** are mandatory):
 * *STATUS_CHECK_MIN_HITS*: Minimum number of successful checks to consider deployment as successful. Default `3`.
 * *STATUS_CHECK_RETRIES*: Maximum number of checks before considering deployment as failed. Default `10`.
 * *USE_IMAGE_DIGEST*: Update service image using digest data when relaunching. Available only for *relaunch* action. Default `0`.
+* *SSH_PORT*: Port used for SSH connection to remote host. Default `22`.
+* *SSH_CONTROL_PERSIST*: Number of seconds while SSH connection to remote host remain open (useful for short but frequent connections). Default `10`.
 
 ### Your services
 
