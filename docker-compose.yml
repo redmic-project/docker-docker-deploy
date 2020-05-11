@@ -1,0 +1,11 @@
+version: '3.5'
+
+services:
+  docker-deploy:
+    image: ${IMAGE_NAME:-registry.gitlab.com/redmic-project/docker/docker-deploy}:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: ${DOCKERFILE:-Dockerfile}
+      args:
+        DOCKER_COMPOSE_VERSION:
+        OPENSSH_CLIENT_VERSION:

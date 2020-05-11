@@ -4,5 +4,10 @@ include:
     file: '/packaging.yml'
 
 stages:
+  - pre-package
   - package
-  - test-package
+  - post-package
+
+.docker-build:
+  variables:
+    COMPOSE_FILE_NAME: docker-compose.yml
