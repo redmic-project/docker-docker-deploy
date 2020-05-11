@@ -21,17 +21,17 @@ You can use it to deploy your own services, supporting **docker-compose** and **
 
 For REDMIC, we use this image into CI/CD configuration. Deploy jobs are defined into our [GitLab CI configuration](https://gitlab.com/redmic-project/gitlab-ci-templates), but you can run it directly using `docker run`:
 
-```
-$ docker run --rm --name docker-deploy \
-	-e SSH_REMOTE=ssh-user@host -e DEPLOY_KEY="<your-private-key>" \
-	-e STACK=your-stack-name \
-	-v $(pwd)/docker-compose.yml:/docker-compose.yml \
-	-v $(pwd)/.env:/.env \
-	redmic/docker-docker-deploy:latest \
-	<action> <arg1> <arg2> ...
+```sh
+docker run --rm --name docker-deploy \
+ -e SSH_REMOTE=ssh-user@host -e DEPLOY_KEY="<your-private-key>" \
+ -e STACK=your-stack-name \
+ -v $(pwd)/docker-compose.yml:/docker-compose.yml \
+ -v $(pwd)/.env:/.env \
+ redmic/docker-docker-deploy:latest \
+ <action> <arg1> <arg2> ...
 ```
 
-As you can see, configuration is possible through environment variables and by script (<action>) parameters.
+As you can see, configuration is possible through environment variables and by script (`<action>`) parameters.
 
 Using environment variables, you can configure:
 
@@ -45,14 +45,13 @@ Using script parameters you can set:
 
 ## Configuration
 
-### Docker deploy
+### This service
 
 You may define these environment variables (**bold** are mandatory):
 
 * **DEPLOY_KEY**: Private key used to authenticate, paired with a public key accepted by remote host.
 * **SSH_REMOTE**: SSH user and hostname (DNS or IP) of remote host where you are going to deploy.
 * **STACK**: Name of Docker stack (*Swarm* mode) or project (*docker-compose* mode) used to wrap deployed services.
-
 
 * *COMPOSE_FILE*: Name of service definition file. Multiple files are supported, separated by colon (`:`). Default `docker-compose.yml`.
 * *DEFAULT_DEPLOY_FILES*: Files needed for deployment. Used only if `DEPLOY_DIR_NAME` directory does not exist. Default `docker-compose*.yml .env`.
@@ -82,17 +81,20 @@ You may define these environment variables (**bold** are mandatory):
 When using *deploy* action, you can configure your own services through variables:
 
 * Define any variable whose name is prefixed by `ENV_PREFIX` prefix:
-	1. Set variable `docker run ... -e DD_ANY_NAME=value ... deploy`.
-	2. `ANY_NAME` will be available into service containers with `value` value.
+
+ 1. Set variable `docker run ... -e DD_ANY_NAME=value ... deploy`.
+ 2. `ANY_NAME` will be available into service containers with `value` value.
+
 * Pass any variable as deploy script parameter (without `ENV_PREFIX` prefix):
-	1. Set parameter to deploy script: `docker run ... deploy ANY_NAME=value`.
-	2. `ANY_NAME` will be available into service containers with `value` value.
+
+ 1. Set parameter to deploy script: `docker run ... deploy ANY_NAME=value`.
+ 2. `ANY_NAME` will be available into service containers with `value` value.
 
 ## Examples
 
 ### Deploy
 
-```
+```sh
 $ ls -a deploy
 .  ..  docker-compose.yml  .env
 
@@ -115,12 +117,12 @@ sIhl4aG94WSKaj6MdST5Dzt/0qbyJXCThChJbahWToou
 "
 
 $ docker run --rm --name docker-deploy \
-	-e SSH_REMOTE=user@domain.net -e DEPLOY_KEY \
-	-e STACK=example -e SERVICES_TO_CHECK=example_service-name \
-	-e DD_VARIABLE_1="variable 1" \
-	-v $(pwd)/deploy:/deploy \
-	redmic/docker-docker-deploy \
-	deploy VARIABLE_2="variable 2"
+ -e SSH_REMOTE=user@domain.net -e DEPLOY_KEY \
+ -e STACK=example -e SERVICES_TO_CHECK=example_service-name \
+ -e DD_VARIABLE_1="variable 1" \
+ -v $(pwd)/deploy:/deploy \
+ redmic/docker-docker-deploy \
+ deploy VARIABLE_2="variable 2"
 ```
 
 1. You must define the deploy configuration, a valid `docker-compose.yml` file at least.
