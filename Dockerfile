@@ -1,9 +1,9 @@
-ARG DOCKER_COMPOSE_VERSION=1.24.0
+ARG DOCKER_COMPOSE_VERSION=1.27.4
 FROM docker/compose:${DOCKER_COMPOSE_VERSION}
 
 LABEL maintainer="info@redmic.es"
 
-ARG OPENSSH_CLIENT_VERSION=7.7_p1-r4
+ARG OPENSSH_CLIENT_VERSION=8.1_p1-r0
 RUN apk --update --no-cache add \
 	openssh-client=${OPENSSH_CLIENT_VERSION}
 
