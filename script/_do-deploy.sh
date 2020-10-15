@@ -16,7 +16,7 @@ deployCmd="\
 		composeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g') && \
 		${GREP_BIN} -v '^[#| ]' .env | sed -r \"s/(\w+)=(.*)/export \1='\2'/g\" > .env-deploy && \
 		env -i /bin/sh -c \". \$(pwd)/.env-deploy && \
-			docker stack deploy -c \${composeFileSplitted} \${deployAuthParam} ${STACK}\" ; \
+			docker stack deploy \${deployAuthParam} -c \${composeFileSplitted} ${STACK}\" ; \
 	else \
 		composeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -f /g') && \
 		composeCmd=\"docker-compose -f \${composeFileSplitted} -p ${STACK}\" && \
