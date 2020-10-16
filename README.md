@@ -61,12 +61,14 @@ You may define these environment variables (**bold** are mandatory):
 * *ENV_SPACE_REPLACEMENT*: Unique string (change this if that is not true for you) used to replace spaces into variable values while handling them. Default `<dd-space>`.
 * *FORCE_DOCKER_COMPOSE*: Use always standard (*docker-compose*) mode instead of Docker *Swarm*, even if it is available on remote Docker environment. Default `0`.
 * *OMIT_CLEAN_DEPLOY*: Leave at remote host deployment resources after doing a successful deploy. Useful when using bind mounts or *docker-compose* secrets (pointing to static content in deployment resources). Default `0`.
+* *SWARM_RESOLVE_IMAGE*: Allow edit behaviour of query the registry to resolve image digest and supported platforms ("always"|"changed"|"never"). Default `always`.
 * *GREP_BIN*: Path to *grep* binary in remote host. Default `grep`.
 * *REGISTRY_PASS*: Docker registry password, corresponding to a user with read permissions. **Required** for private registry or repository.
 * *REGISTRY_URL*: Docker registry address, where Docker must log in to retrieve images. Useful only when using private registry or repository. Default is empty, to use Docker Hub registry.
 * *REGISTRY_USER*: Docker registry username, corresponding to a user with read permissions. **Required** for private registry or repository.
+* *SERVICES_TO_AUTH*: Names of services which need authorization to access to private registry, separated by space. Default is empty, to use service names found into docker-compose files with stack prefix (`<stack-name>_<service-name>`).
 * *SERVICE*: Name of service to relaunch (`<stack-name>_<service-name>`). Available and **required** only for *relaunch* action.
-* *SERVICES_TO_CHECK*: Names of services to check after deployment, separated by space. Default is `STACK` variable value, but setting this to a valid service name is recommended (`<stack-name>_<service-name>`).
+* *SERVICES_TO_CHECK*: Names of services to check after deployment, separated by space. Default is empty, to use service names found into docker-compose files with stack prefix (`<stack-name>_<service-name>`).
 * *SERVICES_TO_DEPLOY*: Names of services to deploy, separated by space. Available only for standard (*docker-compose*) mode. Default is empty, to deploy all defined services.
 * *STATUS_CHECK_DELAY*: Seconds to wait before check deployment. Default `120`.
 * *STATUS_CHECK_INTERVAL*: Seconds to wait between check iterations. Default `20`.

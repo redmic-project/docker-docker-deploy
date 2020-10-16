@@ -1,10 +1,17 @@
 #!/bin/sh
 
-echo -e "\n${INFO_COLOR}Checking deployment of services [${DATA_COLOR} ${SERVICES_TO_CHECK} ${INFO_COLOR}] at ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
+servicesToCheck="${SERVICES_TO_CHECK}"
+if [ -z "${servicesToCheck}" ]
+then
+	standardComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -f /g')
+	servicesToCheck=$(docker-compose --log-level ERROR -f ${standardComposeFileSplitted} config --services | sed "s/^/${STACK}_/g")
+fi
+
+echo -e "\n${INFO_COLOR}Checking deployment of services [${DATA_COLOR} $(echo ${servicesToCheck}) ${INFO_COLOR}] at ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
 
 checkDeployCmd="\
 	success='' ; \
-	for serviceToCheck in ${SERVICES_TO_CHECK} ; \
+	for serviceToCheck in $(echo ${servicesToCheck}) ; \
 	do \
 		echo -e \"\\n${INFO_COLOR}Checking deployment of service ${DATA_COLOR}\${serviceToCheck}${INFO_COLOR} ..${NULL_COLOR}\" ; \
 		echo -e \"  ${INFO_COLOR}retries ${DATA_COLOR}${STATUS_CHECK_RETRIES}${INFO_COLOR}, interval ${DATA_COLOR}${STATUS_CHECK_INTERVAL}${INFO_COLOR}s, hits ${DATA_COLOR}${STATUS_CHECK_MIN_HITS}${NULL_COLOR}\\n\" ; \

@@ -11,15 +11,30 @@ deployCmd="\
 	else \
 		deployAuthParam=\"\" ; \
 	fi ; \
+	standardComposeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -f /g') ; \
 	if [ ${FORCE_DOCKER_COMPOSE} -eq 0 ] && docker stack ls > /dev/null 2> /dev/null ; \
 	then \
-		composeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g') && \
+		swarmComposeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g') && \
 		${GREP_BIN} -v '^[#| ]' .env | sed -r \"s/(\w+)=(.*)/export \1='\2'/g\" > .env-deploy && \
 		env -i /bin/sh -c \". \$(pwd)/.env-deploy && \
-			docker stack deploy \${deployAuthParam} -c \${composeFileSplitted} ${STACK}\" ; \
+			docker stack deploy \${deployAuthParam} --resolve-image ${SWARM_RESOLVE_IMAGE} -c \${swarmComposeFileSplitted} ${STACK}\" && \
+		if [ ! -z \"\${deployAuthParam}\" ] ; \
+		then \
+			servicesToAuth=\"${SERVICES_TO_AUTH}\" && \
+			if [ -z \"\${servicesToAuth}\" ] ; \
+			then \
+				servicesToAuth=\"\$(docker-compose --log-level ERROR -f \${standardComposeFileSplitted} config --services | sed \"s/^/${STACK}_/g\")\" ; \
+			fi && \
+			if [ ! -z \"\${servicesToAuth}\" ] ; \
+			then \
+				for serviceToAuth in \${servicesToAuth} ; \
+				do \
+					docker service update -d \${deployAuthParam} \${serviceToAuth} ; \
+				done ; \
+			fi ; \
+		fi ; \
 	else \
-		composeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -f /g') && \
-		composeCmd=\"docker-compose -f \${composeFileSplitted} -p ${STACK}\" && \
+		composeCmd=\"docker-compose -f \${standardComposeFileSplitted} -p ${STACK}\" && \
 		\${composeCmd} stop ${SERVICES_TO_DEPLOY} && \
 		\${composeCmd} rm -f ${SERVICES_TO_DEPLOY} && \
 		\${composeCmd} pull ${SERVICES_TO_DEPLOY} && \
