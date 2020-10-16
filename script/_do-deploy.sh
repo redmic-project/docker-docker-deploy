@@ -17,17 +17,21 @@ deployCmd="\
 		swarmComposeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g') && \
 		${GREP_BIN} -v '^[#| ]' .env | sed -r \"s/(\w+)=(.*)/export \1='\2'/g\" > .env-deploy && \
 		env -i /bin/sh -c \". \$(pwd)/.env-deploy && \
-			docker stack deploy \${deployAuthParam} -c \${swarmComposeFileSplitted} ${STACK}\" ; \
-		if [ -z \"${SERVICES_TO_AUTH}\" ] ; \
+			docker stack deploy \${deployAuthParam} -c \${swarmComposeFileSplitted} ${STACK}\" && \
+		if [ ! -z \"\${deployAuthParam}\" ] ; \
 		then \
-			SERVICES_TO_AUTH=\"\$(docker-compose --log-level ERROR -f \${standardComposeFileSplitted} config --services)\" ; \
-		fi ; \
-		if [ ! -z \"\${deployAuthParam}\" -a ! -z \"${SERVICES_TO_AUTH}\" ] ; \
-		then \
-			for serviceToAuth in ${SERVICES_TO_AUTH} \
-			do \
-				docker service update \${deployAuthParam} ${STACK}_\${serviceToAuth} ; \
-			done ; \
+			servicesToAuth=\"${SERVICES_TO_AUTH}\" && \
+			if [ -z \"\${servicesToAuth}\" ] ; \
+			then \
+				servicesToAuth=\"\$(docker-compose --log-level ERROR -f \${standardComposeFileSplitted} config --services | sed \"s/^/${STACK}_/g\")\" ; \
+			fi && \
+			if [ ! -z \"\${servicesToAuth}\" ] ; \
+			then \
+				for serviceToAuth in \${servicesToAuth} ; \
+				do \
+					docker service update -d \${deployAuthParam} \${serviceToAuth} ; \
+				done ; \
+			fi ; \
 		fi ; \
 	else \
 		composeCmd=\"docker-compose -f \${standardComposeFileSplitted} -p ${STACK}\" && \
