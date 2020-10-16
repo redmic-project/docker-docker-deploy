@@ -65,6 +65,7 @@ You may define these environment variables (**bold** are mandatory):
 * *REGISTRY_PASS*: Docker registry password, corresponding to a user with read permissions. **Required** for private registry or repository.
 * *REGISTRY_URL*: Docker registry address, where Docker must log in to retrieve images. Useful only when using private registry or repository. Default is empty, to use Docker Hub registry.
 * *REGISTRY_USER*: Docker registry username, corresponding to a user with read permissions. **Required** for private registry or repository.
+* *SERVICES_TO_AUTH*: Names of services which need authorization to access to private registry, separated by space. Default is empty, to use service names found into docker-compose files with stack prefix (`<stack-name>_<service-name>`).
 * *SERVICE*: Name of service to relaunch (`<stack-name>_<service-name>`). Available and **required** only for *relaunch* action.
 * *SERVICES_TO_CHECK*: Names of services to check after deployment, separated by space. Default is `STACK` variable value, but setting this to a valid service name is recommended (`<stack-name>_<service-name>`).
 * *SERVICES_TO_DEPLOY*: Names of services to deploy, separated by space. Available only for standard (*docker-compose*) mode. Default is empty, to deploy all defined services.
