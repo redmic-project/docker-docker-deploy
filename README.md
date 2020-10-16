@@ -61,6 +61,7 @@ You may define these environment variables (**bold** are mandatory):
 * *ENV_SPACE_REPLACEMENT*: Unique string (change this if that is not true for you) used to replace spaces into variable values while handling them. Default `<dd-space>`.
 * *FORCE_DOCKER_COMPOSE*: Use always standard (*docker-compose*) mode instead of Docker *Swarm*, even if it is available on remote Docker environment. Default `0`.
 * *OMIT_CLEAN_DEPLOY*: Leave at remote host deployment resources after doing a successful deploy. Useful when using bind mounts or *docker-compose* secrets (pointing to static content in deployment resources). Default `0`.
+* *SWARM_RESOLVE_IMAGE*: Allow edit behaviour of query the registry to resolve image digest and supported platforms ("always"|"changed"|"never"). Default `always`.
 * *GREP_BIN*: Path to *grep* binary in remote host. Default `grep`.
 * *REGISTRY_PASS*: Docker registry password, corresponding to a user with read permissions. **Required** for private registry or repository.
 * *REGISTRY_URL*: Docker registry address, where Docker must log in to retrieve images. Useful only when using private registry or repository. Default is empty, to use Docker Hub registry.

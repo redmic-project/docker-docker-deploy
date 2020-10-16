@@ -17,7 +17,7 @@ deployCmd="\
 		swarmComposeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g') && \
 		${GREP_BIN} -v '^[#| ]' .env | sed -r \"s/(\w+)=(.*)/export \1='\2'/g\" > .env-deploy && \
 		env -i /bin/sh -c \". \$(pwd)/.env-deploy && \
-			docker stack deploy \${deployAuthParam} -c \${swarmComposeFileSplitted} ${STACK}\" && \
+			docker stack deploy \${deployAuthParam} --resolve-image ${SWARM_RESOLVE_IMAGE} -c \${swarmComposeFileSplitted} ${STACK}\" && \
 		if [ ! -z \"\${deployAuthParam}\" ] ; \
 		then \
 			servicesToAuth=\"${SERVICES_TO_AUTH}\" && \
