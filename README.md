@@ -130,9 +130,9 @@ $ docker run --rm --name docker-deploy \
 1. You must define the deploy configuration, a valid `docker-compose.yml` file at least.
 2. To authenticate, you must use a **private key** allowed in the remote host.
 3. Start service deployment. In this example:
-	* to `domain.net` remote host
-	* identified as `user`
-	* authenticated through a RSA-1024 private key
-	* into `example` stack
-	* check service `example_service-name` deployment
-	* with `VARIABLE_1` and `VARIABLE_2` set in service
+   * to `domain.net` remote host
+   * identified as `user`
+   * authenticated through a RSA-1024 private key
+   * into `example` stack
+   * check service `example_service-name` deployment
+   * with `VARIABLE_1` and `VARIABLE_2` set in service
