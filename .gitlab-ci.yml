@@ -10,4 +10,4 @@ stages:
 
 .docker-build:
   variables:
-    COMPOSE_FILE_NAME: docker-compose.yml
+    COMPOSE_FILE_NAME: compose.yaml

@@ -5,5 +5,5 @@ services:
       context: .
       dockerfile: ${DOCKERFILE:-Dockerfile}
       args:
-        DOCKER_COMPOSE_VERSION:
-        OPENSSH_CLIENT_VERSION:
+        DOCKER_VERSION:
+        OPENSSH_VERSION:
