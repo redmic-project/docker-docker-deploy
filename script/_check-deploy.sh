@@ -23,7 +23,7 @@ checkDeployCmd="\
 		hits=0 && \
 		for i in \$(seq 1 ${STATUS_CHECK_RETRIES}) ; \
 		do \
-			if [ ${FORCE_DOCKER_COMPOSE} -eq 0 ] && docker stack ls > /dev/null 2> /dev/null ; \
+			if [ ${DEPLOYING_TO_SWARM} -eq 0 ] ; \
 			then \
 				stackServices=\$(docker service ls -f name=\${serviceToCheck} --format '{{.Replicas}}') ; \
 				serviceToCheckReplication=\$(echo \"\${stackServices}\" | head -1) ; \
@@ -55,7 +55,7 @@ checkDeployCmd="\
 							replicaStoppedTaskState=\$(docker service ps --format '{{.CurrentState}}' \
 								-f 'desired-state=shutdown' -f \"name=\${runningServiceName}.\${j}\" \
 								\${runningServiceName} | head -1) ; \
-							if echo \"\${replicaStoppedTaskState}\" | ${GREP_BIN} 'Complete' > /dev/null 2> /dev/null ; \
+							if echo \"\${replicaStoppedTaskState}\" | ${GREP_BIN} 'Complete' > /dev/null 2>&1 ; \
 							then \
 								completedTaskCount=\$((\${completedTaskCount} + 1)) ; \
 							fi ; \

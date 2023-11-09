@@ -12,7 +12,7 @@ deployCmd="\
 		deployAuthParam=\"\" ; \
 	fi ; \
 	standardComposeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -f /g') ; \
-	if [ ${FORCE_DOCKER_COMPOSE} -eq 0 ] && docker stack ls > /dev/null 2> /dev/null ; \
+	if [ ${DEPLOYING_TO_SWARM} -eq 0 ] ; \
 	then \
 		swarmComposeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g') && \
 		${GREP_BIN} -v '^[#| ]' .env | sed -r \"s/(\w+)=(.*)/export \1='\2'/g\" > .env-deploy && \

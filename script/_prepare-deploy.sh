@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Se comprueba si está disponible el binario docker en el entorno donde se va a desplegar
-checkDockerCmd="docker --version > /dev/null"
+checkDockerCmd="docker --version > /dev/null 2>&1"
 if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerCmd}
 then
 	echo -e "${FAIL_COLOR}Docker is not available at remote environment!${NULL_COLOR}"
@@ -9,21 +9,28 @@ then
 fi
 
 # Se comprueba si la versión de Docker en el entorno donde se va a desplegar es >= v23.0.0
-checkDocker23Cmd="dockerMajor=\$(docker --version | sed -r 's/.* ([0-9]+).*/\1/g'); [ \${dockerMajor} -ge 23 ]"
-DOCKER_23_COMPATIBLE_TARGET=$(ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDocker23Cmd})
+checkDocker23Cmd="[ \$(docker --version | sed -r 's/.* ([0-9]+)\..*/\1/g') -ge 23 ]"
+ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDocker23Cmd}
+DOCKER_23_COMPATIBLE_TARGET=${?}
 
 # Se comprueba si está disponible el plugin compose de docker o el antiguo binario docker-compose
 if [ ${DOCKER_23_COMPATIBLE_TARGET} -eq 0 ]
 then
-	checkDockerComposeCmd="docker compose version > /dev/null"
+	checkDockerComposeCmd="docker compose version > /dev/null 2>&1"
+	composeVersionLabel="v2"
 else
-	checkDockerComposeCmd="docker-compose version > /dev/null"
+	checkDockerComposeCmd="docker-compose version > /dev/null 2>&1"
+	composeVersionLabel="v1"
 fi
 if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerComposeCmd}
 then
-	echo -e "${FAIL_COLOR}Docker Compose (both v1 or v2) is not available at remote environment!${NULL_COLOR}"
+	echo -e "${FAIL_COLOR}Docker Compose (${composeVersionLabel}) is not available at remote environment!${NULL_COLOR}"
 	exit 1
 fi
+
+checkDeploymentTypeCmd="[ ${FORCE_DOCKER_COMPOSE} -eq 0 ] && docker stack ls > /dev/null 2>&1"
+ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDeploymentTypeCmd}
+DEPLOYING_TO_SWARM=${?}
 
 echo -e "\n${INFO_COLOR}Preparing deployment configuration and resources ..${NULL_COLOR}"
 
@@ -72,26 +79,33 @@ echo -e ${envDefs} >> .env
 
 echo -e " ]${NULL_COLOR}"
 echo -e "\n${INFO_COLOR}Checking deployment configuration in compose files ..${NULL_COLOR}"
-echo -e "  ${INFO_COLOR}compose files [ ${DATA_COLOR}${COMPOSE_FILE}${INFO_COLOR} ]${NULL_COLOR}\n"
+echo -e "  ${INFO_COLOR}compose files [ ${DATA_COLOR}${COMPOSE_FILE}${INFO_COLOR} ]${NULL_COLOR}"
+echo -en "  ${INFO_COLOR}checked by [ ${DATA_COLOR}"
 
 # Antes de continuar, se comprueba que la configuración de despliegue sea válida para compose o swarm.
-checkDeploymentTypeCmd="[ ${FORCE_DOCKER_COMPOSE} -eq 0 ] && [ ${DOCKER_23_COMPATIBLE_TARGET} -eq 0 ] && docker stack ls > /dev/null 2> /dev/null"
-if ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDeploymentTypeCmd}
+validComposeMessage="${PASS_COLOR}Valid compose configuration!${NULL_COLOR}"
+invalidComposeMessage="${FAIL_COLOR}Invalid compose configuration!${NULL_COLOR}"
+
+if [ ${DOCKER_23_COMPATIBLE_TARGET} -eq 0 ] && [ ${DEPLOYING_TO_SWARM} -eq 0 ]
 then
+	echo -e "docker stack config${INFO_COLOR} ]${NULL_COLOR}\n"
 	swarmComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g')
+
 	if docker stack config -q -c ${swarmComposeFileSplitted}
 	then
-		echo -e "${PASS_COLOR}Valid (for Docker Swarm) compose configuration!${NULL_COLOR}"
+		echo -e "${validComposeMessage}"
 	else
-		echo -e "${FAIL_COLOR}Invalid (for Docker Swarm) compose configuration!${NULL_COLOR}"
+		echo -e "${invalidComposeMessage}"
 		exit 1
 	fi
 else
+	echo -e "docker compose config${INFO_COLOR} ]${NULL_COLOR}\n"
+
 	if docker compose config -q
 	then
-		echo -e "${PASS_COLOR}Valid (for Docker Compose) compose configuration!${NULL_COLOR}"
+		echo -e "${validComposeMessage}"
 	else
-		echo -e "${FAIL_COLOR}Invalid (for Docker Compose) compose configuration!${NULL_COLOR}"
+		echo -e "${invalidComposeMessage}"
 		exit 1
 	fi
 fi

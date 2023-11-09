@@ -15,5 +15,5 @@ then
 fi
 
 # Se prepara la identidad para conectar al servidor de despliegue.
-eval "$(ssh-agent -s)"
-echo "${DEPLOY_KEY}" | tr -d '\r' | ssh-add - > /dev/null
+eval "$(ssh-agent)" > /dev/null
+echo "${DEPLOY_KEY}" | tr -d '\r' | ssh-add - > /dev/null 2>&1

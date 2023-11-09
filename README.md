@@ -116,7 +116,6 @@ $ docker run --rm --name docker-deploy \
   -e SSH_REMOTE=user@domain.net \
   -e DEPLOY_KEY \
   -e STACK=example \
-  -e SERVICES_TO_CHECK=example_service-name \
   -e DD_VARIABLE_1="variable 1" \
   -v $(pwd)/deploy:/deploy \
   redmic/docker-docker-deploy \
