@@ -4,7 +4,12 @@ servicesToCheck="${SERVICES_TO_CHECK}"
 if [ -z "${servicesToCheck}" ]
 then
 	standardComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -f /g')
-	servicesToCheck=$(docker-compose --log-level ERROR -f ${standardComposeFileSplitted} config --services | sed "s/^/${STACK}_/g")
+	if [ ${DOCKER_23_COMPATIBLE_TARGET} -eq 0 ]
+	then
+		servicesToCheck=$(docker --log-level error compose -f ${standardComposeFileSplitted} config --services | sed "s/^/${STACK}_/g")
+	else
+		servicesToCheck=$(docker-compose --log-level ERROR -f ${standardComposeFileSplitted} config --services | sed "s/^/${STACK}_/g")
+	fi
 fi
 
 echo -e "\n${INFO_COLOR}Checking deployment of services [${DATA_COLOR} $(echo ${servicesToCheck}) ${INFO_COLOR}] at ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"

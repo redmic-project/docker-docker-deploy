@@ -1,5 +1,30 @@
 #!/bin/sh
 
+# Se comprueba si está disponible el binario docker en el entorno donde se va a desplegar
+checkDockerCmd="docker --version > /dev/null"
+if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerCmd}
+then
+	echo -e "${FAIL_COLOR}Docker is not available at remote environment!${NULL_COLOR}"
+	exit 1
+fi
+
+# Se comprueba si la versión de Docker en el entorno donde se va a desplegar es >= v23.0.0
+checkDocker23Cmd="dockerMajor=\$(docker --version | sed -r 's/.* ([0-9]+).*/\1/g'); [ \${dockerMajor} -ge 23 ]"
+DOCKER_23_COMPATIBLE_TARGET=$(ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDocker23Cmd})
+
+# Se comprueba si está disponible el plugin compose de docker o el antiguo binario docker-compose
+if [ ${DOCKER_23_COMPATIBLE_TARGET} -eq 0 ]
+then
+	checkDockerComposeCmd="docker compose version > /dev/null"
+else
+	checkDockerComposeCmd="docker-compose version > /dev/null"
+fi
+if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerComposeCmd}
+then
+	echo -e "${FAIL_COLOR}Docker Compose (both v1 or v2) is not available at remote environment!${NULL_COLOR}"
+	exit 1
+fi
+
 echo -e "\n${INFO_COLOR}Preparing deployment configuration and resources ..${NULL_COLOR}"
 
 randomValue="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)"
@@ -46,16 +71,29 @@ done
 echo -e ${envDefs} >> .env
 
 echo -e " ]${NULL_COLOR}"
-echo -e "\n${INFO_COLOR}Checking deployment configuration in docker-compose files ..${NULL_COLOR}"
+echo -e "\n${INFO_COLOR}Checking deployment configuration in compose files ..${NULL_COLOR}"
 echo -e "  ${INFO_COLOR}compose files [ ${DATA_COLOR}${COMPOSE_FILE}${INFO_COLOR} ]${NULL_COLOR}\n"
 
-# Antes de continuar, se comprueba que la configuración de despliegue sea válida.
-if docker-compose config > /dev/null
+# Antes de continuar, se comprueba que la configuración de despliegue sea válida para compose o swarm.
+checkDeploymentTypeCmd="[ ${FORCE_DOCKER_COMPOSE} -eq 0 ] && [ ${DOCKER_23_COMPATIBLE_TARGET} -eq 0 ] && docker stack ls > /dev/null 2> /dev/null"
+if ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDeploymentTypeCmd}
 then
-	echo -e "${PASS_COLOR}Valid docker-compose configuration!${NULL_COLOR}"
+	swarmComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g')
+	if docker stack config -q -c ${swarmComposeFileSplitted}
+	then
+		echo -e "${PASS_COLOR}Valid (for Docker Swarm) compose configuration!${NULL_COLOR}"
+	else
+		echo -e "${FAIL_COLOR}Invalid (for Docker Swarm) compose configuration!${NULL_COLOR}"
+		exit 1
+	fi
 else
-	echo -e "${FAIL_COLOR}Invalid docker-compose configuration!${NULL_COLOR}"
-	exit 1
+	if docker compose config -q
+	then
+		echo -e "${PASS_COLOR}Valid (for Docker Compose) compose configuration!${NULL_COLOR}"
+	else
+		echo -e "${FAIL_COLOR}Invalid (for Docker Compose) compose configuration!${NULL_COLOR}"
+		exit 1
+	fi
 fi
 
 echo -e "\n${INFO_COLOR}Sending deployment resources to remote ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"

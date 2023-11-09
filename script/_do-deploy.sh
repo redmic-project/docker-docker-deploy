@@ -23,7 +23,12 @@ deployCmd="\
 			servicesToAuth=\"${SERVICES_TO_AUTH}\" && \
 			if [ -z \"\${servicesToAuth}\" ] ; \
 			then \
-				servicesToAuth=\"\$(docker-compose --log-level ERROR -f \${standardComposeFileSplitted} config --services | sed \"s/^/${STACK}_/g\")\" ; \
+				if [ ${DOCKER_23_COMPATIBLE_TARGET} -eq 0 ] ; \
+				then \
+					servicesToAuth=\"\$(docker --log-level error compose -f \${standardComposeFileSplitted} config --services | sed \"s/^/${STACK}_/g\")\" ; \
+				else \
+					servicesToAuth=\"\$(docker-compose --log-level ERROR -f \${standardComposeFileSplitted} config --services | sed \"s/^/${STACK}_/g\")\" ; \
+				fi ; \
 			fi && \
 			if [ ! -z \"\${servicesToAuth}\" ] ; \
 			then \
@@ -34,7 +39,12 @@ deployCmd="\
 			fi ; \
 		fi ; \
 	else \
-		composeCmd=\"docker-compose -f \${standardComposeFileSplitted} -p ${STACK}\" && \
+		if [ ${DOCKER_23_COMPATIBLE_TARGET} -eq 0 ] ; \
+		then \
+			composeCmd=\"docker compose -f \${standardComposeFileSplitted} -p ${STACK}\" ; \
+		else \
+			composeCmd=\"docker-compose -f \${standardComposeFileSplitted} -p ${STACK}\" ; \
+		fi && \
 		\${composeCmd} stop ${SERVICES_TO_DEPLOY} && \
 		\${composeCmd} rm -f ${SERVICES_TO_DEPLOY} && \
 		\${composeCmd} pull ${SERVICES_TO_DEPLOY} && \
