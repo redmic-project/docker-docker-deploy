@@ -117,9 +117,9 @@ checkDeployCmd="\
 
 if ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${checkDeployCmd}"
 then
-	echo -e "\\n${PASS_COLOR}All services seems ok!${NULL_COLOR}"
+	echo -e "\n${PASS_COLOR}All services seems ok!${NULL_COLOR}"
 else
-	echo -e "\\n${FAIL_COLOR}One or more services seems failed!${NULL_COLOR}"
+	echo -e "\n${FAIL_COLOR}One or more services seems failed!${NULL_COLOR}"
 	ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
 	exit 1
 fi

@@ -75,12 +75,13 @@ do
 done
 
 # Se prepara el fichero .env para usarlas en la máquina destino y se setean en este entorno también.
+cp -a .env .env-original
 echo -e ${envDefs} >> .env
 
 echo -e " ]${NULL_COLOR}"
 echo -e "\n${INFO_COLOR}Checking deployment configuration in compose files ..${NULL_COLOR}"
 echo -e "  ${INFO_COLOR}compose files [ ${DATA_COLOR}${COMPOSE_FILE}${INFO_COLOR} ]${NULL_COLOR}"
-echo -en "  ${INFO_COLOR}checked by [ ${DATA_COLOR}"
+echo -en "  ${INFO_COLOR}check command [ ${DATA_COLOR}"
 
 # Antes de continuar, se comprueba que la configuración de despliegue sea válida para compose o swarm.
 validComposeMessage="${PASS_COLOR}Valid compose configuration!${NULL_COLOR}"
@@ -122,8 +123,12 @@ then
 	exit 1
 fi
 
-# Se envían a su destino los ficheros de despliegue del servicio.
-if scp ${SSH_PARAMS} ${deployFiles} "${SSH_REMOTE}:${DEPLOY_HOME}"
+# Se envían a su destino los ficheros de despliegue del servicio y se restaura el .env local.
+scp ${SSH_PARAMS} ${deployFiles} "${SSH_REMOTE}:${DEPLOY_HOME}"
+sendResourcesExitCode=${?}
+mv .env-original .env
+
+if [ ${sendResourcesExitCode} -eq 0 ]
 then
 	echo -e "${PASS_COLOR}Deployment resources successfully sent!${NULL_COLOR}"
 else
