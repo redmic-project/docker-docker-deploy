@@ -2,7 +2,7 @@
 
 servicesToCheck="${SERVICES_TO_CHECK:-${servicesInComposeFiles}}"
 
-echo -e "\n${INFO_COLOR}Checking deployment of services [${DATA_COLOR} $(echo ${servicesToCheck}) ${INFO_COLOR}] at ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
+echo -e "\n${INFO_COLOR}Checking deployment of services [${DATA_COLOR} $(echo ${servicesToCheck}) ${INFO_COLOR}] at host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
 
 checkDeployCmd="\
 	success='' ; \

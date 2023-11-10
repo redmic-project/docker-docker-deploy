@@ -4,7 +4,7 @@
 checkDockerCmd="docker --version > /dev/null 2>&1"
 if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerCmd}
 then
-	echo -e "${FAIL_COLOR}Docker is not available at remote environment!${NULL_COLOR}"
+	echo -e "${FAIL_COLOR}Docker is not available at deployment target host environment!${NULL_COLOR}"
 	exit 1
 fi
 
@@ -26,7 +26,7 @@ else
 fi
 if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerComposeCmd}
 then
-	echo -e "${FAIL_COLOR}Docker Compose (${composeVersionLabel}) is not available at remote environment!${NULL_COLOR}"
+	echo -e "${FAIL_COLOR}Docker Compose (${composeVersionLabel}) is not available at deployment target host environment!${NULL_COLOR}"
 	exit 1
 fi
 
@@ -55,12 +55,12 @@ fi
 servicesInComposeFiles=$(docker --log-level error compose config --services | sed "s/^/${STACK}_/g" | tr '\n' ' ')
 servicesToDeployLabel=${SERVICES_TO_DEPLOY:-${servicesInComposeFiles}}
 
-echo -e "${DATA_COLOR}Docker deploy${INFO_COLOR} is about to perform a deployment to host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
+echo -e "${DATA_COLOR}Docker deploy${INFO_COLOR} is about to perform a deployment at host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
 echo -e "  ${INFO_COLOR}host Docker version [ ${DATA_COLOR}${dockerVersionLabel}${INFO_COLOR} ]${NULL_COLOR}"
 echo -e "  ${INFO_COLOR}host Docker Compose version [ ${DATA_COLOR}${composeVersionLabel}${INFO_COLOR} ]${NULL_COLOR}"
 echo -e "  ${INFO_COLOR}services to deploy [ ${DATA_COLOR}${servicesToDeployLabel}${INFO_COLOR}]${NULL_COLOR}"
 
-echo -e "\n${INFO_COLOR}Setting environment variables to local and remote environments ..${NULL_COLOR}"
+echo -e "\n${INFO_COLOR}Setting environment variables to local and deployment target host environments ..${NULL_COLOR}"
 echo -en "  ${INFO_COLOR}variable names [ ${DATA_COLOR}STACK${INFO_COLOR}"
 
 envDefs="STACK=${STACK}"
@@ -122,7 +122,7 @@ else
 	fi
 fi
 
-echo -e "\n${INFO_COLOR}Sending deployment resources to remote ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
+echo -e "\n${INFO_COLOR}Sending deployment resources to host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
 echo -e "  ${INFO_COLOR}deployment path [ ${DATA_COLOR}${deployHome}${INFO_COLOR} ]${NULL_COLOR}"
 echo -e "  ${INFO_COLOR}deployment files [ ${DATA_COLOR}${deployFiles}${INFO_COLOR} ]${NULL_COLOR}\n"
 

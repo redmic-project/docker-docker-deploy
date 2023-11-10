@@ -5,11 +5,11 @@ You can use it to deploy your own services, supporting **Docker Compose** (both 
 
 ## Actions
 
-* **deploy**: Perform a service deployment on a remote Docker environment. Contains 3 stages:
-  * *prepare-deploy*: Copy resources to remote environment (*compose* files, service configurations...), prepare environment variables and directories, etc.
-  * *do-deploy*: Launch service on Docker environment. Both standard (using `docker compose`) and *Swarm* (using `docker stack deploy`) modes are supported on remote Docker environment, but *Swarm* mode is recommended (even for single-node clusters).
+* **deploy**: Perform a service deployment at a Docker environment. Contains 3 stages:
+  * *prepare-deploy*: Check dependencies, copy resources to deployment target host (*compose* files, service configurations...), prepare environment variables and directories, etc.
+  * *do-deploy*: Launch service at deployment target host. Both standard (using `docker compose`) and *Swarm* (using `docker stack deploy`) modes are supported (deprecated versions too), but *Swarm* mode is recommended (even for single-node clusters).
   * *check-deploy*: Once deployment is done, this stage waits a defined time period for the service to being up and running (or stopped after run successfully). If service status remains stable after several checks, then it is considered successfully deployed.
-* **create-nets**: Prepare remote environment creating Docker networks which are external to service definition (not created by service deployment itself, defined as *external* in compose files).
+* **create-nets**: Prepare deployment target host environment creating Docker networks which are external to service definition (not created by service deployment itself, defined as *external* in compose files).
 * **relaunch**: Force a previously deployed service to update, relaunching it with the same service configuration. Available only for *Swarm* mode.
 
 ## Usage
@@ -32,11 +32,11 @@ As you can see, configuration is possible through environment variables and by s
 Using environment variables, you can configure:
 
 * Behaviour of this image itself.
-* Remote environment (where you are deploying to) for service configuration and service environment variables. Only when action is *deploy* and using the `ENV_PREFIX` prefix in your variable names.
+* Deployment target host environment (where you are deploying to) for service deployment configuration and deployed service environment variables (the latter only when action is *deploy* and using the `ENV_PREFIX` prefix in your variable names).
 
 Using script parameters you can set:
 
-* When action is *deploy*, remote environment for service configuration and service environment variables. These parameters overwrite previous environment values, including those defined using the `ENV_PREFIX` prefix.
+* When action is *deploy*, deployment target host environment (where you are deploying to) for service deployment configuration and deployed service environment variables. These parameters overwrite previous environment values, including those defined using the `ENV_PREFIX` prefix.
 * When action is *create-nets*, the name of external networks to create.
 
 ## Configuration
@@ -52,14 +52,14 @@ You may define these environment variables (**bold** are mandatory):
 | **STACK** | - | Name of Docker stack (*Swarm* mode) or project (*Compose* mode) used to wrap deployed services. |
 | *COMPOSE_FILE* | `compose.yaml` | Name of service definition file. Multiple files are supported, separated by colon (`:`). |
 | *DEFAULT_DEPLOY_FILES* | `*compose*.y*ml .env` | Files needed for deployment. Used only if `DEPLOY_DIR_NAME` directory does not exist. |
-| *DEPLOY_DIR_NAME* | `deploy` | Name of directory containing files needed for deployment. If directory exists, `DEFAULT_DEPLOY_FILES` is ignored and all contents are copied to remote host. |
-| *DEPLOY_PATH* | `~` | Path in remote host where deployment directory (used to hold temporary files) will be created. |
-| *ENV_PREFIX* | `DD_` | Prefix used to identify variables to be defined in remote environment and service, available there without this prefix. Change this if default value collides with the beginning of your variable names. |
+| *DEPLOY_DIR_NAME* | `deploy` | Name of directory containing files needed for deployment. If directory exists, `DEFAULT_DEPLOY_FILES` is ignored and all contents are copied to deployment target host. |
+| *DEPLOY_PATH* | `~` | Path in deployment target host where deployment directory (used to hold temporary files) will be created. |
+| *ENV_PREFIX* | `DD_` | Prefix used to identify variables to be defined in deployment target host environment and service, available there without this prefix. Change this if default value collides with the beginning of your variable names. |
 | *ENV_SPACE_REPLACEMENT* | `<dd-space>` | Unique string (change this if that is not true for you) used to replace spaces into variable values while handling them. |
-| *FORCE_DOCKER_COMPOSE* | `0` | Use always standard (*Compose*) mode instead of Docker *Swarm*, even if it is available at remote Docker environment. |
-| *OMIT_CLEAN_DEPLOY* | `0` | Leave at remote host deployment resources after doing a successful deploy. Useful when using bind mounts or *Compose* secrets (pointing to static content in deployment resources). |
+| *FORCE_DOCKER_COMPOSE* | `0` | Use always standard (*Compose*) mode instead of Docker *Swarm*, even if it is available at deployment target host. |
+| *OMIT_CLEAN_DEPLOY* | `0` | Leave at deployment target host deployment resources after doing a successful deploy. Useful when using bind mounts or *Compose* secrets (pointing to static content in deployment resources). |
 | *SWARM_RESOLVE_IMAGE* | `always` | Allows to edit the behaviour of the registry query to resolve image digests and supported platforms (`always`, `changed` or `never`). |
-| *GREP_BIN* | `grep` | Path to *grep* binary in remote host. |
+| *GREP_BIN* | `grep` | Path to *grep* binary in deployment target host. |
 | *REGISTRY_PASS* | - | Docker registry password, corresponding to a user with read permissions. **Required** for private registry or repository. |
 | *REGISTRY_URL* | - | Docker registry address, where Docker must log in to retrieve images. Useful only when using private registry or repository. Default is empty, to use Docker Hub registry. |
 | *REGISTRY_USER* | - | Docker registry username, corresponding to a user with read permissions. **Required** for private registry or repository. |

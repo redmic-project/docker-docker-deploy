@@ -10,7 +10,7 @@ remoteHost=$(echo "${SSH_REMOTE}" | cut -f 2 -d '@')
 
 if [ -z "${DEPLOY_KEY}" ]
 then
-	echo -e "${FAIL_COLOR}You must define 'DEPLOY_KEY' in environment, with a SSH private key accepted by remote server${NULL_COLOR}"
+	echo -e "${FAIL_COLOR}You must define 'DEPLOY_KEY' in environment, with a SSH private key accepted by remote host${NULL_COLOR}"
 	exit 1
 fi
 

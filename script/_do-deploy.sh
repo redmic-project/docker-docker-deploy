@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo -e "\n${INFO_COLOR}Deploying at remote target ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}\n"
+echo -e "\n${INFO_COLOR}Deploying at host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}\n"
 
 if [ ${deployingToSwarm} -ne 0 ]
 then
