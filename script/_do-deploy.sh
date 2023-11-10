@@ -2,8 +2,18 @@
 
 echo -e "\n${INFO_COLOR}Deploying at remote target ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}\n"
 
+if [ ${deployingToSwarm} -ne 0 ]
+then
+	if [ ${docker23CompatibleTarget} -eq 0 ]
+	then
+		composeBaseCmd="docker compose"
+	else
+		composeBaseCmd="docker-compose"
+	fi
+fi
+
 deployCmd="\
-	cd ${DEPLOY_HOME} && \
+	cd ${deployHome} && \
 	if [ ! -z \"${REGISTRY_USER}\" ] ; \
 	then \
 		docker login -u \"${REGISTRY_USER}\" -p \"${REGISTRY_PASS}\" ${REGISTRY_URL} ; \
@@ -11,8 +21,7 @@ deployCmd="\
 	else \
 		deployAuthParam=\"\" ; \
 	fi ; \
-	standardComposeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -f /g') ; \
-	if [ ${DEPLOYING_TO_SWARM} -eq 0 ] ; \
+	if [ ${deployingToSwarm} -eq 0 ] ; \
 	then \
 		swarmComposeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g') && \
 		${GREP_BIN} -v '^[#| ]' .env | sed -r \"s/(\w+)=(.*)/export \1='\2'/g\" > .env-deploy && \
@@ -20,16 +29,7 @@ deployCmd="\
 			docker stack deploy \${deployAuthParam} --resolve-image ${SWARM_RESOLVE_IMAGE} -c \${swarmComposeFileSplitted} ${STACK}\" && \
 		if [ ! -z \"\${deployAuthParam}\" ] ; \
 		then \
-			servicesToAuth=\"${SERVICES_TO_AUTH}\" && \
-			if [ -z \"\${servicesToAuth}\" ] ; \
-			then \
-				if [ ${DOCKER_23_COMPATIBLE_TARGET} -eq 0 ] ; \
-				then \
-					servicesToAuth=\"\$(docker --log-level error compose -f \${standardComposeFileSplitted} config --services | sed \"s/^/${STACK}_/g\")\" ; \
-				else \
-					servicesToAuth=\"\$(docker-compose --log-level ERROR -f \${standardComposeFileSplitted} config --services | sed \"s/^/${STACK}_/g\")\" ; \
-				fi ; \
-			fi && \
+			servicesToAuth=\"${SERVICES_TO_AUTH:-${servicesInComposeFiles}}\" && \
 			if [ ! -z \"\${servicesToAuth}\" ] ; \
 			then \
 				for serviceToAuth in \${servicesToAuth} ; \
@@ -39,19 +39,14 @@ deployCmd="\
 			fi ; \
 		fi ; \
 	else \
-		if [ ${DOCKER_23_COMPATIBLE_TARGET} -eq 0 ] ; \
-		then \
-			composeCmd=\"docker compose -f \${standardComposeFileSplitted} -p ${STACK}\" ; \
-		else \
-			composeCmd=\"docker-compose -f \${standardComposeFileSplitted} -p ${STACK}\" ; \
-		fi && \
+		composeCmd=\"COMPOSE_FILE=${COMPOSE_FILE} ${composeBaseCmd} -p ${STACK}\" ; \
 		\${composeCmd} stop ${SERVICES_TO_DEPLOY} && \
 		\${composeCmd} rm -f ${SERVICES_TO_DEPLOY} && \
 		\${composeCmd} pull ${SERVICES_TO_DEPLOY} && \
 		\${composeCmd} up -d ${SERVICES_TO_DEPLOY} ; \
 	fi"
 
-cleanDeployCmd="ssh ${SSH_PARAMS} \"${SSH_REMOTE}\" \"rm -rf ${DEPLOY_HOME}\""
+cleanDeployCmd="ssh ${SSH_PARAMS} \"${SSH_REMOTE}\" \"rm -rf ${deployHome}\""
 
 if ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${deployCmd}"
 then

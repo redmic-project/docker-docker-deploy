@@ -1,7 +1,7 @@
 # Docker deploy
 
 Docker deployment utilities for REDMIC infrastructure.
-You can use it to deploy your own services, supporting **Docker Compose** and **Docker Swarm** environments.
+You can use it to deploy your own services, supporting **Docker Compose** (both v1 and v2) and **Docker Swarm** environments.
 
 ## Actions
 
@@ -129,5 +129,4 @@ $ docker run --rm --name docker-deploy \
    * identified as `user`
    * authenticated through a RSA-1024 private key
    * into `example` stack
-   * check service `example_service-name` deployment
    * with `VARIABLE_1` and `VARIABLE_2` set in service

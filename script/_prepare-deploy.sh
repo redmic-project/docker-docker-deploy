@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Se comprueba si está disponible el binario docker en el entorno donde se va a desplegar
+# Se comprueba si está disponible el binario docker en el entorno donde se va a desplegar.
 checkDockerCmd="docker --version > /dev/null 2>&1"
 if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerCmd}
 then
@@ -8,19 +8,21 @@ then
 	exit 1
 fi
 
-# Se comprueba si la versión de Docker en el entorno donde se va a desplegar es >= v23.0.0
+# Se comprueba si la versión de Docker en el entorno donde se va a desplegar es >= v23.0.0.
 checkDocker23Cmd="[ \$(docker --version | sed -r 's/.* ([0-9]+)\..*/\1/g') -ge 23 ]"
 ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDocker23Cmd}
-DOCKER_23_COMPATIBLE_TARGET=${?}
+docker23CompatibleTarget=${?}
 
-# Se comprueba si está disponible el plugin compose de docker o el antiguo binario docker-compose
-if [ ${DOCKER_23_COMPATIBLE_TARGET} -eq 0 ]
+# Se comprueba si está disponible el plugin compose de docker o el antiguo binario docker-compose.
+if [ ${docker23CompatibleTarget} -eq 0 ]
 then
 	checkDockerComposeCmd="docker compose version > /dev/null 2>&1"
-	composeVersionLabel="v2"
+	dockerVersionLabel=">= v23"
+	composeVersionLabel="current >=v2 plugin"
 else
 	checkDockerComposeCmd="docker-compose version > /dev/null 2>&1"
-	composeVersionLabel="v1"
+	dockerVersionLabel="< v23"
+	composeVersionLabel="deprecated v1 binary"
 fi
 if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerComposeCmd}
 then
@@ -28,17 +30,17 @@ then
 	exit 1
 fi
 
+# Se comprueba si se desea y si es posible desplegar en modo Swarm.
 checkDeploymentTypeCmd="[ ${FORCE_DOCKER_COMPOSE} -eq 0 ] && docker stack ls > /dev/null 2>&1"
 ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDeploymentTypeCmd}
-DEPLOYING_TO_SWARM=${?}
+deployingToSwarm=${?}
 
-echo -e "\n${INFO_COLOR}Preparing deployment configuration and resources ..${NULL_COLOR}"
-
+# Se preparan rutas de despliegue.
 randomValue="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)"
 deployHomeParent="${DEPLOY_PATH}/docker-deploy"
-DEPLOY_HOME="${deployHomeParent}/${randomValue}"
+deployHome="${deployHomeParent}/${randomValue}"
 
-# Se comprueba si se despliega desde dentro de 'deploy' o desde la raíz del proyecto.
+# Se comprueba si existe directorio con recursos de despliegue o están en la raíz del proyecto.
 if [ -d "${DEPLOY_DIR_NAME}" ]
 then
 	cd "${DEPLOY_DIR_NAME}"
@@ -46,8 +48,17 @@ then
 	createDirCmd="mkdir -p ${deployHomeParent}"
 else
 	deployFiles=${DEFAULT_DEPLOY_FILES}
-	createDirCmd="mkdir -p ${DEPLOY_HOME}"
+	createDirCmd="mkdir -p ${deployHome}"
 fi
+
+# Se obtienen los nombres de servicio presentes en ficheros compose, con prefijo de stack.
+servicesInComposeFiles=$(docker --log-level error compose config --services | sed "s/^/${STACK}_/g" | tr '\n' ' ')
+servicesToDeployLabel=${SERVICES_TO_DEPLOY:-${servicesInComposeFiles}}
+
+echo -e "${DATA_COLOR}Docker deploy${INFO_COLOR} is about to perform a deployment to host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
+echo -e "  ${INFO_COLOR}host Docker version [ ${DATA_COLOR}${dockerVersionLabel}${INFO_COLOR} ]${NULL_COLOR}"
+echo -e "  ${INFO_COLOR}host Docker Compose version [ ${DATA_COLOR}${composeVersionLabel}${INFO_COLOR} ]${NULL_COLOR}"
+echo -e "  ${INFO_COLOR}services to deploy [ ${DATA_COLOR}${servicesToDeployLabel}${INFO_COLOR}]${NULL_COLOR}"
 
 echo -e "\n${INFO_COLOR}Setting environment variables to local and remote environments ..${NULL_COLOR}"
 echo -en "  ${INFO_COLOR}variable names [ ${DATA_COLOR}STACK${INFO_COLOR}"
@@ -87,7 +98,7 @@ echo -en "  ${INFO_COLOR}check command [ ${DATA_COLOR}"
 validComposeMessage="${PASS_COLOR}Valid compose configuration!${NULL_COLOR}"
 invalidComposeMessage="${FAIL_COLOR}Invalid compose configuration!${NULL_COLOR}"
 
-if [ ${DOCKER_23_COMPATIBLE_TARGET} -eq 0 ] && [ ${DEPLOYING_TO_SWARM} -eq 0 ]
+if [ ${docker23CompatibleTarget} -eq 0 ] && [ ${deployingToSwarm} -eq 0 ]
 then
 	echo -e "docker stack config${INFO_COLOR} ]${NULL_COLOR}\n"
 	swarmComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g')
@@ -112,19 +123,19 @@ else
 fi
 
 echo -e "\n${INFO_COLOR}Sending deployment resources to remote ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
-echo -e "  ${INFO_COLOR}deployment path [ ${DATA_COLOR}${DEPLOY_HOME}${INFO_COLOR} ]${NULL_COLOR}"
+echo -e "  ${INFO_COLOR}deployment path [ ${DATA_COLOR}${deployHome}${INFO_COLOR} ]${NULL_COLOR}"
 echo -e "  ${INFO_COLOR}deployment files [ ${DATA_COLOR}${deployFiles}${INFO_COLOR} ]${NULL_COLOR}\n"
 
 # Se crea el directorio donde guardar los ficheros de despliegue del servicio.
 if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${createDirCmd}
 then
-	echo -e "${FAIL_COLOR}Deployment path ${DATA_COLOR}${DEPLOY_HOME}${FAIL_COLOR} creation failed!${NULL_COLOR}"
+	echo -e "${FAIL_COLOR}Deployment path ${DATA_COLOR}${deployHome}${FAIL_COLOR} creation failed!${NULL_COLOR}"
 	ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
 	exit 1
 fi
 
 # Se envían a su destino los ficheros de despliegue del servicio y se restaura el .env local.
-scp ${SSH_PARAMS} ${deployFiles} "${SSH_REMOTE}:${DEPLOY_HOME}"
+scp ${SSH_PARAMS} ${deployFiles} "${SSH_REMOTE}:${deployHome}"
 sendResourcesExitCode=${?}
 mv .env-original .env
 

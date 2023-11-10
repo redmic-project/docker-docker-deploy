@@ -1,16 +1,6 @@
 #!/bin/sh
 
-servicesToCheck="${SERVICES_TO_CHECK}"
-if [ -z "${servicesToCheck}" ]
-then
-	standardComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -f /g')
-	if [ ${DOCKER_23_COMPATIBLE_TARGET} -eq 0 ]
-	then
-		servicesToCheck=$(docker --log-level error compose -f ${standardComposeFileSplitted} config --services | sed "s/^/${STACK}_/g")
-	else
-		servicesToCheck=$(docker-compose --log-level ERROR -f ${standardComposeFileSplitted} config --services | sed "s/^/${STACK}_/g")
-	fi
-fi
+servicesToCheck="${SERVICES_TO_CHECK:-${servicesInComposeFiles}}"
 
 echo -e "\n${INFO_COLOR}Checking deployment of services [${DATA_COLOR} $(echo ${servicesToCheck}) ${INFO_COLOR}] at ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
 
@@ -23,7 +13,7 @@ checkDeployCmd="\
 		hits=0 && \
 		for i in \$(seq 1 ${STATUS_CHECK_RETRIES}) ; \
 		do \
-			if [ ${DEPLOYING_TO_SWARM} -eq 0 ] ; \
+			if [ ${deployingToSwarm} -eq 0 ] ; \
 			then \
 				stackServices=\$(docker service ls -f name=\${serviceToCheck} --format '{{.Replicas}}') ; \
 				serviceToCheckReplication=\$(echo \"\${stackServices}\" | head -1) ; \
