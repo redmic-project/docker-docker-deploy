@@ -51,6 +51,21 @@ else
 	createDirCmd="mkdir -p ${deployHome}"
 fi
 
+# Prepara ficheros compose sin versión si se despliega en modo Swarm a un entorno con versión Docker < v23.
+restoreComposeFilesCmd=""
+if [ ${deployingToSwarm} -eq 0 ] && [ ${docker23CompatibleTarget} -ne 0 ]
+then
+	for composeFile in $(echo "${COMPOSE_FILE}" | sed 's/:/ /g')
+	do
+		if ! grep -q '^version:' "${composeFile}"
+		then
+			cp -a "${composeFile}" "${composeFile}-original"
+			sed -i "1s/^/version: '3.8'\n/g" "${composeFile}"
+			restoreComposeFilesCmd="${restoreComposeFilesCmd} mv \"${composeFile}-original\" \"${composeFile}\" ;"
+		fi
+	done
+fi
+
 # Se obtienen los nombres de servicio presentes en ficheros compose, con prefijo de stack.
 servicesInComposeFiles=$(docker --log-level error compose config --services | sed "s/^/${STACK}_/g" | tr '\n' ' ')
 servicesToDeployLabel=${SERVICES_TO_DEPLOY:-${servicesInComposeFiles}}
@@ -137,7 +152,14 @@ fi
 # Se envían a su destino los ficheros de despliegue del servicio y se restaura el .env local.
 scp ${SSH_PARAMS} ${deployFiles} "${SSH_REMOTE}:${deployHome}"
 sendResourcesExitCode=${?}
+
+# Se restauran los ficheros modificados localmente.
 mv .env-original .env
+if [ ! -z "${restoreComposeFilesCmd}" ]
+then
+	echo -e "${INFO_COLOR}Detected compose files without version for Swarm deployment at target host with Docker version < v23, automatically set ${DATA_COLOR}version: '3.8'${NULL_COLOR}\n"
+	eval "${restoreComposeFilesCmd}"
+fi
 
 if [ ${sendResourcesExitCode} -eq 0 ]
 then
