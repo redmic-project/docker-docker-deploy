@@ -17,3 +17,5 @@ fi
 # Se prepara la identidad para conectar al servidor de despliegue.
 eval "$(ssh-agent)" > /dev/null
 echo "${DEPLOY_KEY}" | tr -d '\r' | ssh-add - > /dev/null 2>&1
+
+closeSshCmd="ssh ${SSH_PARAMS} -q -O exit \"${SSH_REMOTE}\""

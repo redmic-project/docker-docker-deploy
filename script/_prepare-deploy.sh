@@ -1,10 +1,13 @@
 #!/bin/sh
 
+echo -e "${DATA_COLOR}Docker deploy${INFO_COLOR} is about to perform a deployment at host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
+
 # Se comprueba si está disponible el binario docker en el entorno donde se va a desplegar.
 checkDockerCmd="docker --version > /dev/null 2>&1"
 if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerCmd}
 then
-	echo -e "${FAIL_COLOR}Docker is not available at deployment target host environment!${NULL_COLOR}"
+	echo -e "\n${FAIL_COLOR}Docker is not available at deployment target host environment!${NULL_COLOR}"
+	eval "${closeSshCmd}"
 	exit 1
 fi
 
@@ -24,16 +27,31 @@ else
 	dockerVersionLabel="< v23"
 	composeVersionLabel="deprecated v1 binary"
 fi
+
+echo -e "  ${INFO_COLOR}host Docker version [ ${DATA_COLOR}${dockerVersionLabel}${INFO_COLOR} ]${NULL_COLOR}"
+
 if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerComposeCmd}
 then
-	echo -e "${FAIL_COLOR}Docker Compose (${composeVersionLabel}) is not available at deployment target host environment!${NULL_COLOR}"
+	echo -e "\n${FAIL_COLOR}Docker Compose (${composeVersionLabel}) is not available at deployment target host environment!${NULL_COLOR}"
+	eval "${closeSshCmd}"
 	exit 1
 fi
+
+echo -e "  ${INFO_COLOR}host Docker Compose version [ ${DATA_COLOR}${composeVersionLabel}${INFO_COLOR} ]${NULL_COLOR}"
 
 # Se comprueba si se desea y si es posible desplegar en modo Swarm.
 checkDeploymentTypeCmd="[ ${FORCE_DOCKER_COMPOSE} -eq 0 ] && docker stack ls > /dev/null 2>&1"
 ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDeploymentTypeCmd}
 deployingToSwarm=${?}
+
+if [ ${deployingToSwarm} -eq 0 ]
+then
+	deploymentTypeLabel="Swarm"
+else
+	deploymentTypeLabel="Compose"
+fi
+
+echo -e "  ${INFO_COLOR}deployment type [ ${DATA_COLOR}${deploymentTypeLabel}${INFO_COLOR} ]${NULL_COLOR}"
 
 # Se preparan rutas de despliegue.
 randomValue="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)"
@@ -51,29 +69,12 @@ else
 	createDirCmd="mkdir -p ${deployHome}"
 fi
 
-# Prepara ficheros compose sin versión si se despliega en modo Swarm a un entorno con versión Docker < v23.
-restoreComposeFilesCmd=""
-if [ ${deployingToSwarm} -eq 0 ] && [ ${docker23CompatibleTarget} -ne 0 ]
-then
-	for composeFile in $(echo "${COMPOSE_FILE}" | sed 's/:/ /g')
-	do
-		if ! grep -q '^version:' "${composeFile}"
-		then
-			cp -a "${composeFile}" "${composeFile}-original"
-			sed -i "1s/^/version: '3.8'\n/g" "${composeFile}"
-			restoreComposeFilesCmd="${restoreComposeFilesCmd} mv \"${composeFile}-original\" \"${composeFile}\" ;"
-		fi
-	done
-fi
-
 # Se obtienen los nombres de servicio presentes en ficheros compose, con prefijo de stack.
-servicesInComposeFiles=$(docker --log-level error compose config --services | sed "s/^/${STACK}_/g" | tr '\n' ' ')
+servicesInComposeFiles=$(docker compose config --services 2> /dev/null | sed "s/^/${STACK}_/g" | tr '\n' ' ')
 servicesToDeployLabel=${SERVICES_TO_DEPLOY:-${servicesInComposeFiles}}
 
-echo -e "${DATA_COLOR}Docker deploy${INFO_COLOR} is about to perform a deployment at host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
-echo -e "  ${INFO_COLOR}host Docker version [ ${DATA_COLOR}${dockerVersionLabel}${INFO_COLOR} ]${NULL_COLOR}"
-echo -e "  ${INFO_COLOR}host Docker Compose version [ ${DATA_COLOR}${composeVersionLabel}${INFO_COLOR} ]${NULL_COLOR}"
-echo -e "  ${INFO_COLOR}services to deploy [ ${DATA_COLOR}${servicesToDeployLabel}${INFO_COLOR}]${NULL_COLOR}"
+echo -e "  ${INFO_COLOR}services to deploy [ ${DATA_COLOR}${servicesToDeployLabel}${INFO_COLOR}]${NULL_COLOR}\n"
+echo -e "${PASS_COLOR}Host environment is valid for deployment!${NULL_COLOR}"
 
 echo -e "\n${INFO_COLOR}Setting environment variables to local and deployment target host environments ..${NULL_COLOR}"
 echo -en "  ${INFO_COLOR}variable names [ ${DATA_COLOR}STACK${INFO_COLOR}"
@@ -101,43 +102,44 @@ do
 done
 
 # Se prepara el fichero .env para usarlas en la máquina destino y se setean en este entorno también.
+if [ ! -f .env ]
+then
+	touch .env
+fi
 cp -a .env .env-original
+restoreEnvFileCmd="mv .env-original .env"
 echo -e ${envDefs} >> .env
 
-echo -e " ]${NULL_COLOR}"
+echo -e " ]${NULL_COLOR}\n"
+echo -e "${PASS_COLOR}All environment variables set!${NULL_COLOR}"
+
 echo -e "\n${INFO_COLOR}Checking deployment configuration in compose files ..${NULL_COLOR}"
 echo -e "  ${INFO_COLOR}compose files [ ${DATA_COLOR}${COMPOSE_FILE}${INFO_COLOR} ]${NULL_COLOR}"
 echo -en "  ${INFO_COLOR}check command [ ${DATA_COLOR}"
 
 # Antes de continuar, se comprueba que la configuración de despliegue sea válida para compose o swarm.
-validComposeMessage="${PASS_COLOR}Valid compose configuration!${NULL_COLOR}"
-invalidComposeMessage="${FAIL_COLOR}Invalid compose configuration!${NULL_COLOR}"
-
 if [ ${docker23CompatibleTarget} -eq 0 ] && [ ${deployingToSwarm} -eq 0 ]
 then
 	echo -e "docker stack config${INFO_COLOR} ]${NULL_COLOR}\n"
 	swarmComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g')
-
-	if docker stack config -q -c ${swarmComposeFileSplitted}
-	then
-		echo -e "${validComposeMessage}"
-	else
-		echo -e "${invalidComposeMessage}"
-		exit 1
-	fi
+	checkComposeFilesCmd="docker stack config -q -c ${swarmComposeFileSplitted}"
 else
 	echo -e "docker compose config${INFO_COLOR} ]${NULL_COLOR}\n"
+	checkComposeFilesCmd="docker compose config -q"
+fi
 
-	if docker compose config -q
-	then
-		echo -e "${validComposeMessage}"
-	else
-		echo -e "${invalidComposeMessage}"
-		exit 1
-	fi
+if eval "${checkComposeFilesCmd}"
+then
+	echo -e "${PASS_COLOR}Valid compose configuration!${NULL_COLOR}"
+else
+	echo -e "\n${FAIL_COLOR}Invalid compose configuration!${NULL_COLOR}"
+	eval "${restoreEnvFileCmd}"
+	eval "${closeSshCmd}"
+	exit 1
 fi
 
 echo -e "\n${INFO_COLOR}Sending deployment resources to host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
+
 echo -e "  ${INFO_COLOR}deployment path [ ${DATA_COLOR}${deployHome}${INFO_COLOR} ]${NULL_COLOR}"
 echo -e "  ${INFO_COLOR}deployment files [ ${DATA_COLOR}${deployFiles}${INFO_COLOR} ]${NULL_COLOR}\n"
 
@@ -145,8 +147,24 @@ echo -e "  ${INFO_COLOR}deployment files [ ${DATA_COLOR}${deployFiles}${INFO_COL
 if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${createDirCmd}
 then
 	echo -e "${FAIL_COLOR}Deployment path ${DATA_COLOR}${deployHome}${FAIL_COLOR} creation failed!${NULL_COLOR}"
-	ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
+	eval "${restoreEnvFileCmd}"
+	eval "${closeSshCmd}"
 	exit 1
+fi
+
+# Prepara ficheros compose sin versión si se despliega en modo Swarm a un entorno con versión Docker < v23.
+restoreComposeFilesCmd=""
+if [ ${deployingToSwarm} -eq 0 ] && [ ${docker23CompatibleTarget} -ne 0 ]
+then
+	for composeFile in $(echo "${COMPOSE_FILE}" | sed 's/:/ /g')
+	do
+		if ! grep -q '^version:' "${composeFile}"
+		then
+			cp -a "${composeFile}" "${composeFile}-original"
+			sed -i "1s/^/version: '3.8'\n/g" "${composeFile}"
+			restoreComposeFilesCmd="${restoreComposeFilesCmd} mv \"${composeFile}-original\" \"${composeFile}\" ;"
+		fi
+	done
 fi
 
 # Se envían a su destino los ficheros de despliegue del servicio y se restaura el .env local.
@@ -166,6 +184,6 @@ then
 	echo -e "${PASS_COLOR}Deployment resources successfully sent!${NULL_COLOR}"
 else
 	echo -e "${FAIL_COLOR}Deployment resources sending failed!${NULL_COLOR}"
-	ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
+	eval "${closeSshCmd}"
 	exit 1
 fi

@@ -110,6 +110,6 @@ then
 	echo -e "\n${PASS_COLOR}All services seems ok!${NULL_COLOR}"
 else
 	echo -e "\n${FAIL_COLOR}One or more services seems failed!${NULL_COLOR}"
-	ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
+	eval "${closeSshCmd}"
 	exit 1
 fi

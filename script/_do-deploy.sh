@@ -60,6 +60,6 @@ then
 else
 	echo -e "\n${FAIL_COLOR}Services deployment failed!${NULL_COLOR}"
 	eval "${cleanDeployCmd}"
-	ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
+	eval "${closeSshCmd}"
 	exit 1
 fi
