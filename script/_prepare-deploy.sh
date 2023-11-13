@@ -122,7 +122,7 @@ if [ ${docker23CompatibleTarget} -eq 0 ] && [ ${deployingToSwarm} -eq 0 ]
 then
 	echo -e "docker stack config${INFO_COLOR} ]${NULL_COLOR}\n"
 	swarmComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g')
-	checkComposeFilesCmd="docker stack config -q -c ${swarmComposeFileSplitted}"
+	checkComposeFilesCmd="docker stack config -c ${swarmComposeFileSplitted} > /dev/null"
 else
 	echo -e "docker compose config${INFO_COLOR} ]${NULL_COLOR}\n"
 	checkComposeFilesCmd="docker compose config -q"
