@@ -1,13 +1,8 @@
 #!/bin/sh
 
-servicesToCheck="${SERVICES_TO_CHECK}"
-if [ -z "${servicesToCheck}" ]
-then
-	standardComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -f /g')
-	servicesToCheck=$(docker-compose --log-level ERROR -f ${standardComposeFileSplitted} config --services | sed "s/^/${STACK}_/g")
-fi
+servicesToCheck="${SERVICES_TO_CHECK:-${servicesInComposeFiles}}"
 
-echo -e "\n${INFO_COLOR}Checking deployment of services [${DATA_COLOR} $(echo ${servicesToCheck}) ${INFO_COLOR}] at ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
+echo -e "\n${INFO_COLOR}Checking deployment of services [${DATA_COLOR} $(echo ${servicesToCheck}) ${INFO_COLOR}] at host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
 
 checkDeployCmd="\
 	success='' ; \
@@ -18,7 +13,7 @@ checkDeployCmd="\
 		hits=0 && \
 		for i in \$(seq 1 ${STATUS_CHECK_RETRIES}) ; \
 		do \
-			if [ ${FORCE_DOCKER_COMPOSE} -eq 0 ] && docker stack ls > /dev/null 2> /dev/null ; \
+			if [ ${deployingToSwarm} -eq 0 ] ; \
 			then \
 				stackServices=\$(docker service ls -f name=\${serviceToCheck} --format '{{.Replicas}}') ; \
 				serviceToCheckReplication=\$(echo \"\${stackServices}\" | head -1) ; \
@@ -50,7 +45,7 @@ checkDeployCmd="\
 							replicaStoppedTaskState=\$(docker service ps --format '{{.CurrentState}}' \
 								-f 'desired-state=shutdown' -f \"name=\${runningServiceName}.\${j}\" \
 								\${runningServiceName} | head -1) ; \
-							if echo \"\${replicaStoppedTaskState}\" | ${GREP_BIN} 'Complete' > /dev/null 2> /dev/null ; \
+							if echo \"\${replicaStoppedTaskState}\" | ${GREP_BIN} 'Complete' > /dev/null 2>&1 ; \
 							then \
 								completedTaskCount=\$((\${completedTaskCount} + 1)) ; \
 							fi ; \
@@ -112,9 +107,9 @@ checkDeployCmd="\
 
 if ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${checkDeployCmd}"
 then
-	echo -e "\\n${PASS_COLOR}All services seems ok!${NULL_COLOR}"
+	echo -e "\n${PASS_COLOR}All services seems ok!${NULL_COLOR}"
 else
-	echo -e "\\n${FAIL_COLOR}One or more services seems failed!${NULL_COLOR}"
-	ssh ${SSH_PARAMS} -q -O exit "${SSH_REMOTE}"
+	echo -e "\n${FAIL_COLOR}One or more services seems failed!${NULL_COLOR}"
+	eval "${closeSshCmd}"
 	exit 1
 fi

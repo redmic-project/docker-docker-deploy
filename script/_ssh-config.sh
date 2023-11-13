@@ -10,10 +10,12 @@ remoteHost=$(echo "${SSH_REMOTE}" | cut -f 2 -d '@')
 
 if [ -z "${DEPLOY_KEY}" ]
 then
-	echo -e "${FAIL_COLOR}You must define 'DEPLOY_KEY' in environment, with a SSH private key accepted by remote server${NULL_COLOR}"
+	echo -e "${FAIL_COLOR}You must define 'DEPLOY_KEY' in environment, with a SSH private key accepted by remote host${NULL_COLOR}"
 	exit 1
 fi
 
 # Se prepara la identidad para conectar al servidor de despliegue.
-eval "$(ssh-agent -s)"
-echo "${DEPLOY_KEY}" | tr -d '\r' | ssh-add - > /dev/null
+eval "$(ssh-agent)" > /dev/null
+echo "${DEPLOY_KEY}" | tr -d '\r' | ssh-add - > /dev/null 2>&1
+
+closeSshCmd="ssh ${SSH_PARAMS} -q -O exit \"${SSH_REMOTE}\""
