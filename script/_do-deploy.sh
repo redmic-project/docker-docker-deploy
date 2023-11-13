@@ -39,7 +39,8 @@ deployCmd="\
 			fi ; \
 		fi ; \
 	else \
-		composeCmd=\"COMPOSE_FILE=${COMPOSE_FILE} ${composeBaseCmd} -p ${STACK}\" ; \
+		COMPOSE_FILE=\"${COMPOSE_FILE}\" ; \
+		composeCmd=\"${composeBaseCmd} -p ${STACK}\" ; \
 		\${composeCmd} stop ${SERVICES_TO_DEPLOY} && \
 		\${composeCmd} rm -f ${SERVICES_TO_DEPLOY} && \
 		\${composeCmd} pull ${SERVICES_TO_DEPLOY} && \
