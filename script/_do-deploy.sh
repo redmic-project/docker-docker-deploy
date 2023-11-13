@@ -23,10 +23,9 @@ deployCmd="\
 	fi ; \
 	if [ ${deployingToSwarm} -eq 0 ] ; \
 	then \
-		swarmComposeFileSplitted=\$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g') && \
 		${GREP_BIN} -v '^[#| ]' .env | sed -r \"s/(\w+)=(.*)/export \1='\2'/g\" > .env-deploy && \
 		env -i /bin/sh -c \". \$(pwd)/.env-deploy && \
-			docker stack deploy \${deployAuthParam} --resolve-image ${SWARM_RESOLVE_IMAGE} -c \${swarmComposeFileSplitted} ${STACK}\" && \
+			docker stack deploy \${deployAuthParam} --resolve-image ${SWARM_RESOLVE_IMAGE} -c ${swarmComposeFileSplitted} ${STACK}\" && \
 		if [ ! -z \"\${deployAuthParam}\" ] ; \
 		then \
 			servicesToAuth=\"${SERVICES_TO_AUTH:-${servicesInComposeFiles}}\" && \
@@ -39,8 +38,7 @@ deployCmd="\
 			fi ; \
 		fi ; \
 	else \
-		COMPOSE_FILE=\"${COMPOSE_FILE}\" ; \
-		composeCmd=\"${composeBaseCmd} -p ${STACK}\" ; \
+		composeCmd=\"${composeBaseCmd} -f ${standardComposeFileSplitted} -p ${STACK}\" ; \
 		\${composeCmd} stop ${SERVICES_TO_DEPLOY} && \
 		\${composeCmd} rm -f ${SERVICES_TO_DEPLOY} && \
 		\${composeCmd} pull ${SERVICES_TO_DEPLOY} && \

@@ -126,6 +126,7 @@ then
 	checkComposeFilesCmd="env -i /bin/sh -c \". \$(pwd)/.env-config && /usr/local/bin/docker stack config -c ${swarmComposeFileSplitted} > /dev/null\""
 else
 	echo -e "docker compose config${INFO_COLOR} ]${NULL_COLOR}\n"
+	standardComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -f /g')
 	checkComposeFilesCmd="docker compose config -q"
 fi
 
