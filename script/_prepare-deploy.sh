@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo -e "${DATA_COLOR}Docker deploy${INFO_COLOR} is about to perform a deployment at host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
+echo -e "${INFO_COLOR}Performing a deployment at host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
 
 # Se comprueba si está disponible el binario docker en el entorno donde se va a desplegar.
 checkDockerCmd="docker --version > /dev/null 2>&1"
