@@ -117,16 +117,22 @@ echo -e "\n${INFO_COLOR}Checking deployment configuration in compose files ..${N
 echo -e "  ${INFO_COLOR}compose files [ ${DATA_COLOR}${COMPOSE_FILE}${INFO_COLOR} ]${NULL_COLOR}"
 echo -en "  ${INFO_COLOR}check command [ ${DATA_COLOR}"
 
+# Prepara los argumentos necesarios para indicar los ficheros compose a usar, para swarm o para compose.
+if [ ${deployingToSwarm} -eq 0 ]
+then
+	swarmComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g')
+else
+	standardComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -f /g')
+fi
+
 # Antes de continuar, se comprueba que la configuración de despliegue sea válida para compose o swarm.
 if [ ${docker23CompatibleTarget} -eq 0 ] && [ ${deployingToSwarm} -eq 0 ]
 then
 	echo -e "docker stack config${INFO_COLOR} ]${NULL_COLOR}\n"
-	swarmComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g')
 	grep -v '^[#| ]' .env | sed -r "s/(\w+)=(.*)/export \1='\2'/g" > .env-config
 	checkComposeFilesCmd="env -i /bin/sh -c \". \$(pwd)/.env-config && /usr/local/bin/docker stack config -c ${swarmComposeFileSplitted} > /dev/null\""
 else
 	echo -e "docker compose config${INFO_COLOR} ]${NULL_COLOR}\n"
-	standardComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -f /g')
 	checkComposeFilesCmd="docker compose config -q"
 fi
 
