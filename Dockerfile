@@ -3,12 +3,14 @@ FROM docker:${DOCKER_VERSION}
 
 LABEL maintainer="info@redmic.es"
 
-ARG VERSION OPENSSH_VERSION
-ENV VERSION=${VERSION}
+ARG VERSION \
+	OPENSSH_VERSION
+
 LABEL version=${VERSION}
+ENV VERSION=${VERSION}
 
 RUN apk --update --no-cache add \
-	openssh-client-default=${OPENSSH_VERSION}
+	openssh-client-default="${OPENSSH_VERSION}"
 
 COPY script/ /script/
 RUN \
