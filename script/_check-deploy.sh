@@ -15,7 +15,7 @@ checkDeployCmd="\
 		do \
 			if [ ${deployingToSwarm} -eq 0 ] ; \
 			then \
-				stackServices=\$(docker service ls -f name=\${serviceToCheck} --format '{{.Replicas}}') ; \
+				stackServices=\$(docker service ls -f name=\${serviceToCheck} --format '{{.Replicas}}' | sed -r 's/.*([0-9]+\/[0-9]+).*/\1/g') ; \
 				serviceToCheckReplication=\$(echo \"\${stackServices}\" | head -1) ; \
 				runningServiceName=\$(docker service ls -f name=\${serviceToCheck} --format '{{.Name}}' | head -1) ; \
 				serviceCount=\$(echo \"\${stackServices}\" | ${GREP_BIN} -cE '.+') ; \
@@ -33,27 +33,26 @@ checkDeployCmd="\
 					serviceIsRunning=\"[ 0 -ne 0 ]\" ; \
 					success=\"\${success} 0\" ; \
 					break ; \
-				else \
-					runningServiceCount=\$(echo \"\${serviceToCheckReplication}\" | ${GREP_BIN} -cE '([0-9]+)\/\1') ; \
-					serviceIsRunning=\"[ \${runningServiceCount} -eq 1 ]\" ; \
-					if ! \${serviceIsRunning} ; \
-					then \
-						serviceToCheckDesiredReplicas=\$(echo \${serviceToCheckReplication} | cut -d '/' -f 2) ; \
-						completedTaskCount=0 ; \
-						for j in \$(seq 1 \${serviceToCheckDesiredReplicas}) ; \
-						do \
-							replicaStoppedTaskState=\$(docker service ps --format '{{.CurrentState}}' \
-								-f 'desired-state=shutdown' -f \"name=\${runningServiceName}.\${j}\" \
-								\${runningServiceName} | head -1) ; \
-							if echo \"\${replicaStoppedTaskState}\" | ${GREP_BIN} 'Complete' > /dev/null 2>&1 ; \
-							then \
-								completedTaskCount=\$((\${completedTaskCount} + 1)) ; \
-							fi ; \
-						done ; \
-						if [ \${completedTaskCount} -eq \${serviceToCheckDesiredReplicas} ] ; \
+				fi ; \
+				runningServiceCount=\$(echo \"\${serviceToCheckReplication}\" | ${GREP_BIN} -cE '([0-9]+)\/\1') ; \
+				serviceIsRunning=\"[ \${runningServiceCount} -eq 1 ]\" ; \
+				if ! \${serviceIsRunning} ; \
+				then \
+					serviceToCheckDesiredReplicas=\$(echo \${serviceToCheckReplication} | cut -d '/' -f 2) ; \
+					completedTaskCount=0 ; \
+					for j in \$(seq 1 \${serviceToCheckDesiredReplicas}) ; \
+					do \
+						replicaStoppedTaskState=\$(docker service ps --format '{{.CurrentState}}' \
+							-f 'desired-state=shutdown' -f \"name=\${runningServiceName}.\${j}\" \
+							\${runningServiceName} | head -1) ; \
+						if echo \"\${replicaStoppedTaskState}\" | ${GREP_BIN} 'Complete' > /dev/null 2>&1 ; \
 						then \
-							serviceIsRunning=true ; \
+							completedTaskCount=\$((\${completedTaskCount} + 1)) ; \
 						fi ; \
+					done ; \
+					if [ \${completedTaskCount} -eq \${serviceToCheckDesiredReplicas} ] ; \
+					then \
+						serviceIsRunning=true ; \
 					fi ; \
 				fi ; \
 				statusCheckCmd=\${serviceIsRunning} ; \
