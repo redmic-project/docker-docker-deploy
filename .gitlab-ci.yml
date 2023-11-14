@@ -1,6 +1,6 @@
 include:
   - project: 'redmic-project/gitlab-ci-templates'
-    ref: dev
+    ref: master
     file: '/packaging.yml'
 
 stages:
