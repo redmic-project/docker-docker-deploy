@@ -16,6 +16,11 @@ checkDocker23Cmd="[ \$(docker --version | sed -r 's/.* ([0-9]+)\..*/\1/g') -ge 2
 ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDocker23Cmd}
 docker23CompatibleTarget=${?}
 
+# Se comprueba si se desea y si es posible desplegar en modo Swarm.
+checkDeploymentTypeCmd="[ ${FORCE_DOCKER_COMPOSE} -eq 0 ] && docker stack ls > /dev/null 2>&1"
+ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDeploymentTypeCmd}
+deployingToSwarm=${?}
+
 # Se comprueba si está disponible el plugin compose de docker o el antiguo binario docker-compose.
 if [ ${docker23CompatibleTarget} -eq 0 ]
 then
@@ -30,25 +35,26 @@ fi
 
 echo -e "  ${INFO_COLOR}host Docker version [ ${DATA_COLOR}${dockerVersionLabel}${INFO_COLOR} ]${NULL_COLOR}"
 
-if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerComposeCmd}
-then
-	echo -e "\n${FAIL_COLOR}Docker Compose (${composeVersionLabel}) is not available at deployment target host environment!${NULL_COLOR}"
-	eval "${closeSshCmd}"
-	exit 1
-fi
-
-echo -e "  ${INFO_COLOR}host Docker Compose version [ ${DATA_COLOR}${composeVersionLabel}${INFO_COLOR} ]${NULL_COLOR}"
-
-# Se comprueba si se desea y si es posible desplegar en modo Swarm.
-checkDeploymentTypeCmd="[ ${FORCE_DOCKER_COMPOSE} -eq 0 ] && docker stack ls > /dev/null 2>&1"
-ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDeploymentTypeCmd}
-deployingToSwarm=${?}
-
 if [ ${deployingToSwarm} -eq 0 ]
 then
 	deploymentTypeLabel="Swarm"
+
+	# Prepara los argumentos necesarios para indicar los ficheros compose a usar, para swarm o para compose.
+	swarmComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g')
 else
 	deploymentTypeLabel="Compose"
+
+	# Prepara los argumentos necesarios para indicar los ficheros compose a usar, para compose.
+	standardComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -f /g')
+
+	if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerComposeCmd}
+	then
+		echo -e "\n${FAIL_COLOR}Docker Compose (${composeVersionLabel}) is not available at deployment target host environment!${NULL_COLOR}"
+		eval "${closeSshCmd}"
+		exit 1
+	fi
+
+	echo -e "  ${INFO_COLOR}host Docker Compose version [ ${DATA_COLOR}${composeVersionLabel}${INFO_COLOR} ]${NULL_COLOR}"
 fi
 
 echo -e "  ${INFO_COLOR}deployment type [ ${DATA_COLOR}${deploymentTypeLabel}${INFO_COLOR} ]${NULL_COLOR}"
@@ -116,14 +122,6 @@ echo -e "${PASS_COLOR}All environment variables set!${NULL_COLOR}"
 echo -e "\n${INFO_COLOR}Checking deployment configuration in compose files ..${NULL_COLOR}"
 echo -e "  ${INFO_COLOR}compose files [ ${DATA_COLOR}${COMPOSE_FILE}${INFO_COLOR} ]${NULL_COLOR}"
 echo -en "  ${INFO_COLOR}check command [ ${DATA_COLOR}"
-
-# Prepara los argumentos necesarios para indicar los ficheros compose a usar, para swarm o para compose.
-if [ ${deployingToSwarm} -eq 0 ]
-then
-	swarmComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -c /g')
-else
-	standardComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -f /g')
-fi
 
 # Antes de continuar, se comprueba que la configuración de despliegue sea válida para compose o swarm.
 if [ ${docker23CompatibleTarget} -eq 0 ] && [ ${deployingToSwarm} -eq 0 ]
