@@ -4,6 +4,7 @@
 if [ -d "${DEPLOY_DIR_NAME}" ]
 then
 	cd "${DEPLOY_DIR_NAME}"
+	movedToDeployDir=1
 fi
 
 # Se obtienen los nombres de servicio presentes en ficheros compose, con prefijo de stack.

@@ -5,8 +5,8 @@ randomValue="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)"
 deployHomeParent="${DEPLOY_PATH}/docker-deploy"
 deployHome="${deployHomeParent}/${randomValue}"
 
-# Se comprueba si existe directorio con recursos de despliegue o están en la raíz del proyecto.
-if [ -d "${DEPLOY_DIR_NAME}" ]
+# Se preparan rutas de recursos de despliegue y creación de directorio destino, según exista directorio dedicado o no.
+if [ "${movedToDeployDir}" -eq 1 ]
 then
 	deployFiles="-r $(pwd)"
 	createDirCmd="mkdir -p ${deployHomeParent}"
