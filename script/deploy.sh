@@ -21,7 +21,7 @@ echo -e "${INFO_COLOR}Performing a deployment at host ${DATA_COLOR}${remoteHost}
 
 if [ "${OMIT_STATUS_CHECK}" -eq 0 ]
 then
-	echo -e "\n${INFO_COLOR}Waiting ${DATA_COLOR}${STATUS_CHECK_DELAY}${INFO_COLOR}s before checking deployment ..${NULL_COLOR}"
+	echo -e "\n${INFO_COLOR}Waiting ${DATA_COLOR}${STATUS_CHECK_DELAY}s${INFO_COLOR} before checking deployment ..${NULL_COLOR}"
 	sleep ${STATUS_CHECK_DELAY}
 
 	. _check-deploy.sh
