@@ -13,7 +13,7 @@ then
 fi
 
 deployCmd="\
-	cd \"${deployHome}\" && \
+	cd ${deployHome} && \
 	if [ ! -z \"${REGISTRY_USER}\" ] ; \
 	then \
 		docker login -u \"${REGISTRY_USER}\" -p \"${REGISTRY_PASS}\" ${REGISTRY_URL} ; \
@@ -21,13 +21,13 @@ deployCmd="\
 	else \
 		deployAuthParam=\"\" ; \
 	fi ; \
-	if [ \"${deployingToSwarm}\" -eq 0 ] ; \
+	if [ ${deployingToSwarm} -eq 0 ] ; \
 	then \
 		${GREP_BIN} -v '^[#| ]' \"${COMPOSE_ENV_FILE_NAME}\" | sed -r \"s/(\w+)=(.*)/export \1='\2'/g\" > .env-deploy && \
 		env -i /bin/sh -c \"\
 			. \$(pwd)/.env-deploy && \
 			rm \$(pwd)/.env-deploy && \
-			docker stack deploy \${deployAuthParam} --resolve-image \"${SWARM_RESOLVE_IMAGE}\" -c ${swarmComposeFileSplitted} ${STACK}\" && \
+			docker stack deploy \${deployAuthParam} --resolve-image ${SWARM_RESOLVE_IMAGE} -c ${swarmComposeFileSplitted} ${STACK}\" && \
 		if [ ! -z \"\${deployAuthParam}\" ] ; \
 		then \
 			servicesToAuth=\"${SERVICES_TO_AUTH:-${servicesInComposeFiles}}\" && \
