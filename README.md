@@ -59,7 +59,7 @@ You may define these environment variables (**bold** are mandatory):
 | *ENV_SPACE_REPLACEMENT* | `<dd-space>` | Unique string (change this if that is not true for you) used to replace spaces into variable values while handling them. |
 | *FORCE_DOCKER_COMPOSE* | `0` | Use always standard (*Compose*) mode instead of Docker *Swarm*, even if it is available at deployment target host. |
 | *GREP_BIN* | `grep` | Path to *grep* binary in deployment target host. |
-| *OMIT_CLEAN_DEPLOY* | `0` | Leave at deployment target host deployment resources after doing a successful deploy. Useful when using bind mounts or *Compose* secrets (pointing to static content in deployment resources). |
+| *OMIT_CLEAN_DEPLOY* | `0` | Leave at deployment target host all deployment resources after doing a deploy. Useful when using bind mounts or *Compose* secrets (pointing to static content in deployment resources) or you want to check sent contents. |
 | *OMIT_STATUS_CHECK* | `0` | Bypass status check process after deploying services. Useful when you need to be fast. |
 | *REGISTRY_PASS* | - | Docker registry password, corresponding to a user with read permissions. **Required** for private registry or repository. |
 | *REGISTRY_URL* | - | Docker registry address, where Docker must log in to retrieve images. Useful only when using private registry or repository. Default is empty, to use Docker Hub registry. |
