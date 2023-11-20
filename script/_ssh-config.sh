@@ -2,11 +2,17 @@
 
 if [ -z "${SSH_REMOTE}" ]
 then
-	echo -e "${FAIL_COLOR}You must define 'SSH_REMOTE' in environment, with remote user and hostname (like 'ssh-user@ssh-remote')${NULL_COLOR}"
+	echo -e "${FAIL_COLOR}You must define 'SSH_REMOTE' in environment${NULL_COLOR}"
 	exit 1
 fi
 
 remoteHost=$(echo "${SSH_REMOTE}" | cut -f 2 -d '@')
+
+if [ -z "${remoteHost}" ]
+then
+	echo -e "${FAIL_COLOR}Remote host not found, define 'SSH_REMOTE' with remote user and hostname (like 'ssh-user@ssh-remote')${NULL_COLOR}"
+	exit 1
+fi
 
 if [ -z "${DEPLOY_KEY}" ]
 then
