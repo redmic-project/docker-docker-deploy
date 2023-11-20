@@ -24,6 +24,6 @@ RUN \
 
 ARG VERSION
 
-LABEL version=${VERSION}
+LABEL version="${VERSION}"
 
 RUN echo "${VERSION}" > /version
