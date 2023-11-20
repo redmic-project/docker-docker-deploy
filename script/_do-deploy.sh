@@ -23,8 +23,10 @@ deployCmd="\
 	fi ; \
 	if [ ${deployingToSwarm} -eq 0 ] ; \
 	then \
-		${GREP_BIN} -v '^[#| ]' .env | sed -r \"s/(\w+)=(.*)/export \1='\2'/g\" > .env-deploy && \
-		env -i /bin/sh -c \". \$(pwd)/.env-deploy && \
+		${GREP_BIN} -v '^[#| ]' \"${COMPOSE_ENV_FILE_NAME}\" | sed -r \"s/(\w+)=(.*)/export \1='\2'/g\" > .env-deploy && \
+		env -i /bin/sh -c \"\
+			. \$(pwd)/.env-deploy && \
+			rm \$(pwd)/.env-deploy && \
 			docker stack deploy \${deployAuthParam} --resolve-image ${SWARM_RESOLVE_IMAGE} -c ${swarmComposeFileSplitted} ${STACK}\" && \
 		if [ ! -z \"\${deployAuthParam}\" ] ; \
 		then \

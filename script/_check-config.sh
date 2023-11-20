@@ -8,11 +8,11 @@ echo -en "  ${INFO_COLOR}check command [ ${DATA_COLOR}"
 if [ ${docker23CompatibleTarget} -eq 0 ] && [ ${deployingToSwarm} -eq 0 ]
 then
 	echo -e "docker stack config${INFO_COLOR} ]${NULL_COLOR}\n"
-	grep -v '^[#| ]' .env | sed -r "s/(\w+)=(.*)/export \1='\2'/g" > .env-config
+	grep -v '^[#| ]' "${COMPOSE_ENV_FILE_NAME}" | sed -r "s/(\w+)=(.*)/export \1='\2'/g" > .env-config
 
 	env -i /bin/sh -c "\
 		. $(pwd)/.env-config && \
-		rm .env-config && \
+		rm $(pwd)/.env-config && \
 		/usr/local/bin/docker stack config -c ${swarmComposeFileSplitted} > /dev/null"
 else
 	echo -e "docker compose config${INFO_COLOR} ]${NULL_COLOR}\n"

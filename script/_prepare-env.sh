@@ -39,14 +39,14 @@ do
 done
 
 # Se prepara el fichero .env para usarlas en la máquina destino y se setean en este entorno también.
-restoreEnvFileCmd="mv .env-original .env"
-if [ ! -f .env ]
+restoreEnvFileCmd="mv '${COMPOSE_ENV_FILE_NAME}-original' '${COMPOSE_ENV_FILE_NAME}'"
+if [ ! -f "${COMPOSE_ENV_FILE_NAME}" ]
 then
-	touch .env
-	restoreEnvFileCmd="${restoreEnvFileCmd}; rm .env"
+	touch "${COMPOSE_ENV_FILE_NAME}"
+	restoreEnvFileCmd="${restoreEnvFileCmd}; rm '${COMPOSE_ENV_FILE_NAME}'"
 fi
-cp -a .env .env-original
-echo -e ${envDefs} >> .env
+cp -a "${COMPOSE_ENV_FILE_NAME}" "${COMPOSE_ENV_FILE_NAME}-original"
+echo -e ${envDefs} >> "${COMPOSE_ENV_FILE_NAME}"
 
 echo -e " ]${NULL_COLOR}\n"
 echo -e "${PASS_COLOR}All environment variables set!${NULL_COLOR}"
