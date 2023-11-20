@@ -3,6 +3,10 @@ FROM docker:${DOCKER_VERSION}
 
 LABEL maintainer="info@redmic.es"
 
+WORKDIR /deploy
+
+ENTRYPOINT ["/bin/sh", "-c"]
+
 ARG OPENSSH_VERSION
 
 RUN apk --update --no-cache add \
@@ -23,7 +27,3 @@ ARG VERSION
 LABEL version=${VERSION}
 
 RUN echo "${VERSION}" > /version
-
-WORKDIR /deploy
-
-ENTRYPOINT ["/bin/sh", "-c"]
