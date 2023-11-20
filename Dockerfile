@@ -22,4 +22,6 @@ RUN \
 		ln -s "${filePath}" "${binPath}/${fileName%.*}"; \
 	done
 
+WORKDIR /deploy
+
 ENTRYPOINT ["/bin/sh", "-c"]
