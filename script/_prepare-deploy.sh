@@ -108,12 +108,13 @@ do
 done
 
 # Se prepara el fichero .env para usarlas en la máquina destino y se setean en este entorno también.
+restoreEnvFileCmd="mv .env-original .env"
 if [ ! -f .env ]
 then
 	touch .env
+	restoreEnvFileCmd="${restoreEnvFileCmd}; rm .env"
 fi
 cp -a .env .env-original
-restoreEnvFileCmd="mv .env-original .env"
 echo -e ${envDefs} >> .env
 
 echo -e " ]${NULL_COLOR}\n"
@@ -176,12 +177,12 @@ then
 	done
 fi
 
-# Se envían a su destino los ficheros de despliegue del servicio y se restaura el .env local.
+# Se envían a su destino los ficheros de despliegue del servicio.
 scp ${SSH_PARAMS} ${deployFiles} "${SSH_REMOTE}:${deployHome}"
 sendResourcesExitCode=${?}
 
 # Se restauran los ficheros modificados localmente.
-mv .env-original .env
+eval "${restoreEnvFileCmd}"
 if [ ! -z "${restoreComposeFilesCmd}" ]
 then
 	echo -e "${INFO_COLOR}Detected compose files without version for Swarm deployment at target host with Docker version < v23, automatically set ${DATA_COLOR}version: '3.8'${NULL_COLOR}\n"
