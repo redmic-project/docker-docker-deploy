@@ -1,7 +1,7 @@
 include:
   - project: 'redmic-project/gitlab-ci-templates'
-    ref: master
-    file: '/packaging.yml'
+    ref: dev
+    file: '/packaging-docker/docker-build.yml'
 
 stages:
   - pre-package
