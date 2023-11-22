@@ -1,4 +1,5 @@
 ARG DOCKER_VERSION
+
 FROM docker:${DOCKER_VERSION}
 
 LABEL maintainer="info@redmic.es"
@@ -13,6 +14,7 @@ RUN apk --update --no-cache add \
 	openssh-client-default="${OPENSSH_VERSION}"
 
 COPY script/ /script/
+
 RUN \
 	binPath=/usr/bin; \
 	for filePath in /script/*; \
