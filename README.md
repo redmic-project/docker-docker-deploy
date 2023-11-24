@@ -50,6 +50,7 @@ You may define these environment variables (**bold** are mandatory):
 | **DEPLOY_KEY** | - | Private key used to authenticate, paired with a public key accepted by remote host. |
 | **SSH_REMOTE** | - | SSH user and hostname (DNS or IP) of remote host where you are going to deploy. |
 | **STACK** | - | Name of Docker stack (*Swarm* mode) or project (*Compose* mode) used to wrap deployed services. |
+| *COMPOSE_ENV_FILE_NAME* | `.env` | Name of variable values definition file. |
 | *COMPOSE_FILE* | `compose.yaml` | Name of service definition file. Multiple files are supported, separated by colon (`:`). |
 | *DEFAULT_DEPLOY_FILES* | `*compose*.y*ml .env` | Files needed for deployment. Used only if `DEPLOY_DIR_NAME` directory does not exist. |
 | *DEPLOY_DIR_NAME* | `deploy` | Name of directory containing files needed for deployment. If directory exists, `DEFAULT_DEPLOY_FILES` is ignored and all contents are copied to deployment target host. |
@@ -57,23 +58,24 @@ You may define these environment variables (**bold** are mandatory):
 | *ENV_PREFIX* | `DD_` | Prefix used to identify variables to be defined in deployment target host environment and service, available there without this prefix. Change this if default value collides with the beginning of your variable names. |
 | *ENV_SPACE_REPLACEMENT* | `<dd-space>` | Unique string (change this if that is not true for you) used to replace spaces into variable values while handling them. |
 | *FORCE_DOCKER_COMPOSE* | `0` | Use always standard (*Compose*) mode instead of Docker *Swarm*, even if it is available at deployment target host. |
-| *OMIT_CLEAN_DEPLOY* | `0` | Leave at deployment target host deployment resources after doing a successful deploy. Useful when using bind mounts or *Compose* secrets (pointing to static content in deployment resources). |
-| *SWARM_RESOLVE_IMAGE* | `always` | Allows to edit the behaviour of the registry query to resolve image digests and supported platforms (`always`, `changed` or `never`). |
 | *GREP_BIN* | `grep` | Path to *grep* binary in deployment target host. |
+| *OMIT_CLEAN_DEPLOY* | `0` | Leave at deployment target host all deployment resources after doing a deploy. Useful when using bind mounts or *Compose* secrets (pointing to static content in deployment resources) or you want to check sent contents. |
+| *OMIT_STATUS_CHECK* | `0` | Bypass status check process after deploying services. Useful when you need to be fast. |
 | *REGISTRY_PASS* | - | Docker registry password, corresponding to a user with read permissions. **Required** for private registry or repository. |
 | *REGISTRY_URL* | - | Docker registry address, where Docker must log in to retrieve images. Useful only when using private registry or repository. Default is empty, to use Docker Hub registry. |
 | *REGISTRY_USER* | - | Docker registry username, corresponding to a user with read permissions. **Required** for private registry or repository. |
-| *SERVICES_TO_AUTH* | - | Names of services which need authorization to access to private registry, separated by space. Default is empty, to use service names found into compose files with stack prefix (`<stack-name>_<service-name>`). |
 | *SERVICE* | - | Name of service to relaunch (`<stack-name>_<service-name>`). Available and **required** only for *relaunch* action. |
+| *SERVICES_TO_AUTH* | - | Names of services which need authorization to access to private registry, separated by space. Default is empty, to use service names found into compose files with stack prefix (`<stack-name>_<service-name>`). |
 | *SERVICES_TO_CHECK* | - | Names of services to check after deployment, separated by space. Default is empty, to use service names found into compose files with stack prefix (`<stack-name>_<service-name>`). |
 | *SERVICES_TO_DEPLOY* | - | Names of services to deploy, separated by space. Available only for standard (*Compose*) mode. Default is empty, to deploy all defined services. |
+| *SSH_CONTROL_PERSIST* | `10` | Number of seconds while SSH connection to remote host remain open (useful for short but frequent connections). |
+| *SSH_PORT* | `22` | Port used for SSH connection to remote host. |
 | *STATUS_CHECK_DELAY* | `120` | Seconds to wait before check deployment. |
 | *STATUS_CHECK_INTERVAL* | `20` | Seconds to wait between check iterations. |
 | *STATUS_CHECK_MIN_HITS* | `3` | Minimum number of successful checks to consider deployment as successful. |
 | *STATUS_CHECK_RETRIES* | `10` | Maximum number of checks before considering deployment as failed. |
+| *SWARM_RESOLVE_IMAGE* | `always` | Allows to edit the behaviour of the registry query to resolve image digests and supported platforms (`always`, `changed` or `never`). |
 | *USE_IMAGE_DIGEST* | `0` | Update service image using digest data when relaunching. Available only for *relaunch* action. |
-| *SSH_PORT* | `22` | Port used for SSH connection to remote host. |
-| *SSH_CONTROL_PERSIST* | `10` | Number of seconds while SSH connection to remote host remain open (useful for short but frequent connections). |
 
 ### Your services
 
