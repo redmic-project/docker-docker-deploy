@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Se comprueba si está disponible el binario docker en el entorno donde se va a desplegar.
-checkDockerCmd="docker --version > /dev/null 2>&1"
+checkDockerCmd="command -v docker > /dev/null"
 if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerCmd}
 then
 	echo -e "\n${FAIL_COLOR}Docker is not available at deployment target host environment!${NULL_COLOR}"
@@ -9,29 +9,26 @@ then
 	exit 1
 fi
 
+# Se obtiene la versión de Docker disponible en el entorno donde se va a desplegar.
+getDockerVersionCmd="docker version --format '{{.Client.Version}}'"
+dockerVersion=$(ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${getDockerVersionCmd})
+
+echo -e "  ${INFO_COLOR}host Docker version [ ${DATA_COLOR}${dockerVersion}${INFO_COLOR} ]${NULL_COLOR}"
+
 # Se comprueba si la versión de Docker en el entorno donde se va a desplegar es >= v23.0.0.
-checkDocker23Cmd="[ \$(docker --version | sed -r 's/.* ([0-9]+)\..*/\1/g') -ge 23 ]"
-ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDocker23Cmd}
+dockerMajorVersion=$(echo "${dockerVersion}" | cut -d '.' -f 1)
+[ "${dockerMajorVersion}" -ge 23 ]
 docker23CompatibleTarget=${?}
 
 # Se comprueba si se desea y si es posible desplegar en modo Swarm.
-checkDeploymentTypeCmd="[ ${FORCE_DOCKER_COMPOSE} -eq 0 ] && docker stack ls > /dev/null 2>&1"
-ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDeploymentTypeCmd}
-deployingToSwarm=${?}
-
-# Se comprueba si está disponible el plugin compose de docker o el antiguo binario docker-compose.
-if [ ${docker23CompatibleTarget} -eq 0 ]
+if [ ${FORCE_DOCKER_COMPOSE} -ne 0 ]
 then
-	checkDockerComposeCmd="docker compose version > /dev/null 2>&1"
-	dockerVersionLabel=">= v23"
-	composeVersionLabel="current >=v2 plugin"
+	deployingToSwarm=1
 else
-	checkDockerComposeCmd="docker-compose version > /dev/null 2>&1"
-	dockerVersionLabel="< v23"
-	composeVersionLabel="deprecated v1 binary"
+	checkSwarmManagerAvailabilityCmd="[ \$(docker info --format '{{.Swarm.ControlAvailable}}') = true ]"
+	ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkSwarmManagerAvailabilityCmd}
+	deployingToSwarm=${?}
 fi
-
-echo -e "  ${INFO_COLOR}host Docker version [ ${DATA_COLOR}${dockerVersionLabel}${INFO_COLOR} ]${NULL_COLOR}"
 
 if [ ${deployingToSwarm} -eq 0 ]
 then
@@ -45,14 +42,27 @@ else
 	# Prepara los argumentos necesarios para indicar los ficheros compose a usar, para compose.
 	standardComposeFileSplitted=$(echo ${COMPOSE_FILE} | sed 's/:/ -f /g')
 
-	if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerComposeCmd}
+	# Se comprueba si está disponible el plugin compose de docker o el antiguo binario docker-compose.
+	if [ ${docker23CompatibleTarget} -eq 0 ]
 	then
-		echo -e "\n${FAIL_COLOR}Docker Compose (${composeVersionLabel}) is not available at deployment target host environment!${NULL_COLOR}"
-		eval "${closeSshCmd}"
-		exit 1
+		getComposeVersionPrefixCmd="docker compose"
+	else
+		getComposeVersionPrefixCmd="docker-compose"
+
+		checkDockerComposeBinaryCmd="command -v docker-compose > /dev/null"
+		if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerComposeBinaryCmd}
+		then
+			echo -e "\n${FAIL_COLOR}Legacy docker-compose binary is not available at deployment target host environment!${NULL_COLOR}"
+			eval "${closeSshCmd}"
+			exit 1
+		fi
 	fi
 
-	echo -e "  ${INFO_COLOR}host Docker Compose version [ ${DATA_COLOR}${composeVersionLabel}${INFO_COLOR} ]${NULL_COLOR}"
+	# Se obtiene la versión de Docker Compose disponible en el entorno donde se va a desplegar.
+	getComposeVersionCmd="${getComposeVersionPrefixCmd} version --short"
+	composeVersion=$(ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${getComposeVersionCmd})
+
+	echo -e "  ${INFO_COLOR}host Docker Compose version [ ${DATA_COLOR}${composeVersion}${INFO_COLOR} ]${NULL_COLOR}"
 fi
 
 echo -e "  ${INFO_COLOR}deployment type [ ${DATA_COLOR}${deploymentTypeLabel}${INFO_COLOR} ]${NULL_COLOR}"
