@@ -1,16 +1,46 @@
 # Docker deploy
 
 Docker deployment utilities for REDMIC infrastructure.
+
 You can use it to deploy your own services, supporting **Docker Compose** (both v1 and v2) and **Docker Swarm** environments.
 
 ## Actions
 
-* **deploy**: Perform a service deployment at a Docker environment. Contains 3 stages:
-  * *prepare-deploy*: Check dependencies, copy resources to deployment target host (*compose* files, service configurations...), prepare environment variables and directories, etc.
-  * *do-deploy*: Launch service at deployment target host. Both standard (using `docker compose`) and *Swarm* (using `docker stack deploy`) modes are supported (deprecated versions too), but *Swarm* mode is recommended (even for single-node clusters).
-  * *check-deploy*: Once deployment is done, this stage waits a defined time period for the service to being up and running (or stopped after run successfully). If service status remains stable after several checks, then it is considered successfully deployed.
-* **create-nets**: Prepare deployment target host environment creating Docker networks which are external to service definition (not created by service deployment itself, defined as *external* in compose files).
-* **relaunch**: Force a previously deployed service to update, relaunching it with the same service configuration. Available only for *Swarm* mode.
+* **deploy**:
+
+  Perform a service deployment at a Docker environment. Contains 6 stages:
+
+  1. **check-env**:
+
+     Check dependencies, version requirements and get supported mode (`Swarm` or `Compose`) at deployment target host environment.
+
+  1. **prepare-env**:
+
+     Prepare environment variables, define directories to use and get names of services to deploy.
+
+  1. **check-config**:
+
+     Validate deployment configuration at *compose* files, using environment variables and deployment mode set.
+
+  1. **prepare-deploy**:
+
+     Prepare directories and copy resources to deployment target host (*compose* files, service configurations...).
+
+  1. **do-deploy**:
+
+     Launch service at deployment target host. Both standard (using `docker compose`) and *Swarm* (using `docker stack deploy`) modes are supported (deprecated versions too), but *Swarm* mode is recommended (even for single-node clusters).
+
+  1. **check-deploy**:
+
+     Once deployment is done, this stage waits a defined time period for the service to being up and running (or stopped after run successfully). If service status remains stable after several checks, then it is considered successfully deployed. This check can be ommited with `OMIT_STATUS_CHECK=1`.
+
+* **create-nets**:
+
+  Prepare deployment target host environment creating Docker networks which are external to service definition (not created by service deployment itself, defined as *external* in compose files).
+
+* **relaunch**:
+
+  Force a previously deployed service to update, relaunching it with the same service configuration. Available only for *Swarm* mode.
 
 ## Usage
 
@@ -31,13 +61,19 @@ As you can see, configuration is possible through environment variables and by s
 
 Using environment variables, you can configure:
 
-* Behaviour of this image itself.
-* Deployment target host environment (where you are deploying to) for service deployment configuration and deployed service environment variables (the latter only when action is *deploy* and using the `ENV_PREFIX` prefix in your variable names).
+* Behaviour of `docker-deploy` itself.
+* Deployment target host (where you are deploying to) environment, for:
+  * service deployment configuration (values used to configure the deployment), but not exposed into the deployed service.
+  * deployed service environment variables, only when action is *deploy* and you are using the `ENV_PREFIX` (`DD_` by default) prefix in your variable names.
 
 Using script parameters you can set:
 
-* When action is *deploy*, deployment target host environment (where you are deploying to) for service deployment configuration and deployed service environment variables. These parameters overwrite previous environment values, including those defined using the `ENV_PREFIX` prefix.
-* When action is *create-nets*, the name of external networks to create.
+* When action is *deploy*:
+  * deployment target host (where you are deploying to) environment, for:
+    * service deployment configuration (values used to configure the deployment), but not exposed into the deployed service.
+    * deployed service environment variables, using names without prefix. These parameters will overwrite previous environment values, including those defined using the `ENV_PREFIX` (`DD_` by default) prefix.
+* When action is *create-nets*:
+  * the name of external networks to create.
 
 ## Configuration
 
@@ -79,11 +115,14 @@ You may define these environment variables (**bold** are mandatory):
 
 ### Your services
 
-When using *deploy* action, you can configure your own services through variables:
+When using *deploy* action, you can configure your own services through variables.
+
+> Note that you must declare them at your compose files too (into `environment` section, for example).
 
 * Define any variable whose name is prefixed by `ENV_PREFIX` prefix:
   1. Set variable `docker run ... -e DD_ANY_NAME=value ... deploy`.
   2. `ANY_NAME` will be available into service containers with `value` value.
+
 * Pass any variable as deploy script parameter (without `ENV_PREFIX` prefix):
   1. Set parameter to deploy script: `docker run ... deploy ANY_NAME=value`.
   2. `ANY_NAME` will be available into service containers with `value` value.
@@ -131,4 +170,4 @@ $ docker run --rm --name docker-deploy \
    * identified as `user`
    * authenticated through a RSA-1024 private key
    * into `example` stack
-   * with `VARIABLE_1` and `VARIABLE_2` set in service
+   * with `VARIABLE_1` and `VARIABLE_2` available to set in service
