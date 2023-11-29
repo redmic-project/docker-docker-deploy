@@ -24,7 +24,7 @@ then
 		fi ; \
 		if [ ! -z \"${REGISTRY_USER}\" ] ; \
 		then \
-			docker login -u \"${REGISTRY_USER}\" -p \"${REGISTRY_PASS}\" ${REGISTRY_URL} ; \
+			echo \"${REGISTRY_PASS}\" | docker login -u \"${REGISTRY_USER}\" --password-stdin ${REGISTRY_URL} ; \
 		fi ; \
 		docker pull \${imageNameAndTag} && \
 		imageDigest=\$(docker images --digests --format '{{.Digest}}' \${imageName} | head -1) && \

@@ -47,6 +47,15 @@ then
 	restoreEnvFileCmd="${restoreEnvFileCmd}; rm '${COMPOSE_ENV_FILE_NAME}'"
 fi
 cp -a "${COMPOSE_ENV_FILE_NAME}" "${COMPOSE_ENV_FILE_NAME}-original"
+
+# Si existen credenciales de registry, se incorporan para poder obtenerlas de forma segura después
+if [ ! -z "${REGISTRY_USER}" ]
+then
+	ddRegistryPassVarName=DOCKER_DEPLOY_REGISTRY_PASS
+	addVariableToEnv "${ddRegistryPassVarName}=${REGISTRY_PASS}"
+fi
+
+# Se vuelcan todas las definiciones de variables al fichero que será empleado para el despliegue
 echo -e ${envDefs} >> "${COMPOSE_ENV_FILE_NAME}"
 
 echo -e " ]${NULL_COLOR}\n"
