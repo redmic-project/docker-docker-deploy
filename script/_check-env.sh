@@ -10,7 +10,7 @@ then
 fi
 
 # Se obtiene la versión de Docker disponible en el entorno donde se va a desplegar.
-getDockerVersionCmd="docker version --format '{{.Client.Version}}'"
+getDockerVersionCmd="docker version --format '{{.Server.Version}}'"
 dockerVersion=$(ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${getDockerVersionCmd})
 
 echo -e "  ${INFO_COLOR}host Docker version [ ${DATA_COLOR}${dockerVersion}${INFO_COLOR} ]${NULL_COLOR}"
