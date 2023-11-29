@@ -16,7 +16,7 @@ deployCmd="\
 	cd ${deployHome} && \
 	if [ ! -z \"${REGISTRY_USER}\" ] ; \
 	then \
-		env | ${GREP_BIN} -v \"^${ddRegistryPassVarName}=\" \"${COMPOSE_ENV_FILE_NAME}\" | cut -d= -f2- | docker login -u \"${REGISTRY_USER}\" --password-stdin ${REGISTRY_URL} ; \
+		${GREP_BIN} \"^${ddRegistryPassVarName}=\" \"${COMPOSE_ENV_FILE_NAME}\" | cut -d= -f2- | docker login -u \"${REGISTRY_USER}\" --password-stdin ${REGISTRY_URL} ; \
 		deployAuthParam=\"--with-registry-auth\" ; \
 	else \
 		deployAuthParam=\"\" ; \
