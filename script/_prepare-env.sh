@@ -25,7 +25,7 @@ addVariableToEnv() {
 	echo -en "${INFO_COLOR}, ${DATA_COLOR}${variableName}${INFO_COLOR}"
 }
 
-# Se toma como base el entorno actual, incluyendo solo las variables cuyo nombre comience con el prefijo deseado.
+# Incluye desde el entorno actual sólo las variables con el prefijo deseado, aceptando espacios en su valor.
 currEnv=$(env | grep "^${ENV_PREFIX}" | sed "s/${ENV_PREFIX}//g" | sed "s/ /${ENV_SPACE_REPLACEMENT}/g")
 for currEnvItem in ${currEnv}
 do
@@ -39,7 +39,14 @@ do
 	addVariableToEnv "${arg}"
 done
 
-# Se prepara el fichero .env para usarlas en la máquina destino y se setean en este entorno también.
+# Si existen credenciales de registry, se incorporan para poder obtenerlas de forma segura después.
+if [ ! -z "${REGISTRY_USER}" ]
+then
+	ddRegistryPassVarName=DOCKER_DEPLOY_REGISTRY_PASS
+	addVariableToEnv "${ddRegistryPassVarName}=${REGISTRY_PASS}"
+fi
+
+# Se copia el fichero de valores de entorno, antes de modificarlo. Además, prepara su restauración posterior.
 restoreEnvFileCmd="mv '${COMPOSE_ENV_FILE_NAME}-original' '${COMPOSE_ENV_FILE_NAME}'"
 if [ ! -f "${COMPOSE_ENV_FILE_NAME}" ]
 then
@@ -48,14 +55,7 @@ then
 fi
 cp -a "${COMPOSE_ENV_FILE_NAME}" "${COMPOSE_ENV_FILE_NAME}-original"
 
-# Si existen credenciales de registry, se incorporan para poder obtenerlas de forma segura después
-if [ ! -z "${REGISTRY_USER}" ]
-then
-	ddRegistryPassVarName=DOCKER_DEPLOY_REGISTRY_PASS
-	addVariableToEnv "${ddRegistryPassVarName}=${REGISTRY_PASS}"
-fi
-
-# Se vuelcan todas las definiciones de variables al fichero que será empleado para el despliegue
+# Se vuelcan las variables recopiladas al fichero de valores de entorno, para usarlas en la máquina destino.
 echo -e ${envDefs} >> "${COMPOSE_ENV_FILE_NAME}"
 
 echo -e " ]${NULL_COLOR}\n"

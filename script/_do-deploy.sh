@@ -1,34 +1,40 @@
 #!/bin/sh
 
-echo -e "\n${INFO_COLOR}Deploying at host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}\n"
+moveToDeployDirCmd="cd ${deployHome} && "
 
-if [ "${deployingToSwarm}" -ne 0 ]
+if [ ! -z "${REGISTRY_USER}" ]
 then
-	if [ "${docker23CompatibleTarget}" -eq 0 ]
+	echo -e "\n${INFO_COLOR}Login to registry ${DATA_COLOR}${REGISTRY_URL:-<default>}${INFO_COLOR} ..${NULL_COLOR}\n"
+
+	loginCmd="\
+		${GREP_BIN} \"^${ddRegistryPassVarName}=\" \"${COMPOSE_ENV_FILE_NAME}\" | cut -d= -f2- | \
+		docker login -u \"${REGISTRY_USER}\" --password-stdin ${REGISTRY_URL}"
+
+	if ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${moveToDeployDirCmd}${loginCmd}"
 	then
-		composeBaseCmd="docker compose"
+		echo -e "\n${PASS_COLOR}Login to registry was successful!${NULL_COLOR}"
 	else
-		composeBaseCmd="docker-compose"
+		echo -e "\n${FAIL_COLOR}Login to registry failed!${NULL_COLOR}"
 	fi
+
+	deployAuthParam="--with-registry-auth"
+else
+	echo -e "\n${INFO_COLOR}Omitting login to registry${NULL_COLOR}"
+
+	deployAuthParam=""
 fi
 
-deployCmd="\
-	cd ${deployHome} && \
-	if [ ! -z \"${REGISTRY_USER}\" ] ; \
-	then \
-		${GREP_BIN} \"^${ddRegistryPassVarName}=\" \"${COMPOSE_ENV_FILE_NAME}\" | cut -d= -f2- | docker login -u \"${REGISTRY_USER}\" --password-stdin ${REGISTRY_URL} ; \
-		deployAuthParam=\"--with-registry-auth\" ; \
-	else \
-		deployAuthParam=\"\" ; \
-	fi ; \
-	if [ ${deployingToSwarm} -eq 0 ] ; \
-	then \
-		${GREP_BIN} -v '^[#| ]' \"${COMPOSE_ENV_FILE_NAME}\" | sed -r \"s/(\w+)=(.*)/export \1='\2'/g\" > .env-deploy && \
+if [ ${deployingToSwarm} -eq 0 ]
+then
+	deploySwarmCmd="\
+		${GREP_BIN} -v '^[#| ]' \"${COMPOSE_ENV_FILE_NAME}\" | \
+			sed -r \"s/(\w+)=(.*)/export \1='\2'/g\" > .env-deploy && \
 		env -i /bin/sh -c \"\
 			. \$(pwd)/.env-deploy && \
 			rm \$(pwd)/.env-deploy && \
-			docker stack deploy \${deployAuthParam} --resolve-image ${SWARM_RESOLVE_IMAGE} -c ${swarmComposeFileSplitted} ${STACK}\" && \
-		if [ ! -z \"\${deployAuthParam}\" ] ; \
+			docker stack deploy ${deployAuthParam} --resolve-image ${SWARM_RESOLVE_IMAGE} \
+				-c ${swarmComposeFileSplitted} ${STACK}\" && \
+		if [ ! -z \"${deployAuthParam}\" ] ; \
 		then \
 			servicesToAuth=\"${SERVICES_TO_AUTH:-${servicesInComposeFiles}}\" && \
 			if [ ! -z \"\${servicesToAuth}\" ] ; \
@@ -38,14 +44,21 @@ deployCmd="\
 					docker service update -d \${deployAuthParam} \${serviceToAuth} ; \
 				done ; \
 			fi ; \
-		fi ; \
-	else \
+		fi"
+
+	deployCmd="${moveToDeployDirCmd}${deploySwarmCmd}"
+else
+	deployComposeCmd="\
 		composeCmd=\"${composeBaseCmd} -f ${standardComposeFileSplitted} -p ${STACK}\" ; \
 		\${composeCmd} stop ${SERVICES_TO_DEPLOY} && \
 		\${composeCmd} rm -f ${SERVICES_TO_DEPLOY} && \
 		\${composeCmd} pull ${SERVICES_TO_DEPLOY} && \
-		\${composeCmd} up -d ${SERVICES_TO_DEPLOY} ; \
-	fi"
+		\${composeCmd} up -d ${SERVICES_TO_DEPLOY}"
+
+	deployCmd="${moveToDeployDirCmd}${deployComposeCmd}"
+fi
+
+echo -e "\n${INFO_COLOR}Deploying at host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}\n"
 
 ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${deployCmd}"
 deployExitCode=${?}

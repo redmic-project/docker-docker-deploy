@@ -45,9 +45,9 @@ else
 	# Se comprueba si está disponible el plugin compose de docker o el antiguo binario docker-compose.
 	if [ ${docker23CompatibleTarget} -eq 0 ]
 	then
-		getComposeVersionPrefixCmd="docker compose"
+		composeBaseCmd="docker compose"
 	else
-		getComposeVersionPrefixCmd="docker-compose"
+		composeBaseCmd="docker-compose"
 
 		checkDockerComposeBinaryCmd="command -v docker-compose > /dev/null"
 		if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerComposeBinaryCmd}
@@ -59,7 +59,7 @@ else
 	fi
 
 	# Se obtiene la versión de Docker Compose disponible en el entorno donde se va a desplegar.
-	getComposeVersionCmd="${getComposeVersionPrefixCmd} version --short"
+	getComposeVersionCmd="${composeBaseCmd} version --short"
 	composeVersion=$(ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${getComposeVersionCmd})
 
 	echo -e "  ${INFO_COLOR}host Docker Compose version [ ${DATA_COLOR}${composeVersion}${INFO_COLOR} ]${NULL_COLOR}"
