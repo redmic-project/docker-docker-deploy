@@ -30,7 +30,7 @@ NULL_COLOR='\033[0m'
 
 SSH_PARAMS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=error \
 	-o "ControlPath=\"/ssh_connection_socket_%h_%p_%r\"" -o ControlMaster=auto \
-	-o ControlPersist=${SSH_CONTROL_PERSIST} -o Port=${SSH_PORT}"
+	-o ControlPersist=${SSH_CONTROL_PERSIST} -o Port=${SSH_PORT} -o ConnectTimeout=10 -o BatchMode=yes"
 
 version=$(cat /version)
 echo -e "${INFO_COLOR}*** Docker deploy [ ${DATA_COLOR}${version}${INFO_COLOR} ] ***${NULL_COLOR}\n"
