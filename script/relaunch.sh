@@ -35,9 +35,9 @@ fi
 
 if runRemoteCmd "${relaunchCmd}"
 then
-	echo -e "${PASS_COLOR}Service ${DATA_COLOR}${SERVICE}${PASS_COLOR} relaunched!${NULL_COLOR}"
+	echo -e "${PASS_COLOR}Service ${DATA_COLOR}${SERVICE}${PASS_COLOR} relaunched successfully!${NULL_COLOR}"
 else
-	echo -e "${FAIL_COLOR}Service ${DATA_COLOR}${SERVICE}${PASS_COLOR} relaunch failed!${NULL_COLOR}"
+	echo -e "${FAIL_COLOR}Service ${DATA_COLOR}${SERVICE}${FAIL_COLOR} relaunch failed!${NULL_COLOR}"
 	eval "${closeSshCmd}"
 	exit 1
 fi

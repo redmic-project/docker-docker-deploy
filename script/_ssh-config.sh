@@ -35,7 +35,7 @@ runRemoteCmd() {
 # Se comprueba si está disponible la conexión hacia el entorno donde se va a desplegar.
 if ! runRemoteCmd ":" &> /dev/null
 then
-	echo -e "\n${FAIL_COLOR}Failed to connect to host ${DATA_COLOR}${remoteHost}${INFO_COLOR} at port ${DATA_COLOR}${SSH_PORT}${INFO_COLOR} with user ${DATA_COLOR}${remoteUser}${INFO_COLOR}!${NULL_COLOR}"
+	echo -e "\n${FAIL_COLOR}Failed to connect to host ${DATA_COLOR}${remoteHost}${FAIL_COLOR} at port ${DATA_COLOR}${SSH_PORT}${FAIL_COLOR} with user ${DATA_COLOR}${remoteUser}${FAIL_COLOR}!${NULL_COLOR}"
 	eval "${closeSshCmd}"
 	exit 1
 fi
