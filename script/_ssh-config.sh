@@ -25,10 +25,11 @@ fi
 eval "$(ssh-agent)" > /dev/null
 echo "${DEPLOY_KEY}" | tr -d '\r' | ssh-add - > /dev/null 2>&1
 
-closeSshCmd="ssh ${SSH_PARAMS} -q -O exit \"${SSH_REMOTE}\""
+# Prepara comando de cierre de sesión SSH.
+closeSshCmd="ssh -l ${remoteUser} ${SSH_PARAMS} -q -O exit \"${remoteHost}\""
 
 runRemoteCmd() {
-	ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${1}"
+	ssh -l ${remoteUser} ${SSH_PARAMS} "${remoteHost}" "${1}"
 }
 
 # Se comprueba si está disponible la conexión hacia el entorno donde se va a desplegar.
