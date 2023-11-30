@@ -10,7 +10,7 @@ then
 		${GREP_BIN} \"^${ddRegistryPassVarName}=\" \"${COMPOSE_ENV_FILE_NAME}\" | cut -d= -f2- | \
 		docker login -u \"${REGISTRY_USER}\" --password-stdin ${REGISTRY_URL}"
 
-	if ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${moveToDeployDirCmd}${loginCmd}"
+	if runRemoteCmd "${moveToDeployDirCmd}${loginCmd}"
 	then
 		echo -e "\n${PASS_COLOR}Login to registry was successful!${NULL_COLOR}"
 	else
@@ -60,13 +60,13 @@ fi
 
 echo -e "\n${INFO_COLOR}Deploying at host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}\n"
 
-ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${deployCmd}"
+runRemoteCmd "${deployCmd}"
 deployExitCode=${?}
 
 if [ "${OMIT_CLEAN_DEPLOY}" -eq 0 ]
 then
 	cleanDeployCmd="rm -rf \"${deployHome}\""
-	ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${cleanDeployCmd}"
+	runRemoteCmd "${cleanDeployCmd}"
 else
 	echo -e "\n${INFO_COLOR}Deployment resources cleaning omitted${NULL_COLOR}"
 fi

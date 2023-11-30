@@ -33,7 +33,7 @@ else
 	relaunchCmd="docker service update -q --force ${SERVICE}"
 fi
 
-if ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${relaunchCmd}"
+if runRemoteCmd "${relaunchCmd}"
 then
 	echo -e "${PASS_COLOR}Service ${DATA_COLOR}${SERVICE}${PASS_COLOR} relaunched!${NULL_COLOR}"
 else

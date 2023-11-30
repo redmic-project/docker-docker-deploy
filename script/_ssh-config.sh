@@ -27,8 +27,12 @@ echo "${DEPLOY_KEY}" | tr -d '\r' | ssh-add - > /dev/null 2>&1
 
 closeSshCmd="ssh ${SSH_PARAMS} -q -O exit \"${SSH_REMOTE}\""
 
+runRemoteCmd() {
+	ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${1}"
+}
+
 # Se comprueba si está disponible la conexión hacia el entorno donde se va a desplegar.
-if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" : &> /dev/null
+if ! runRemoteCmd ":" &> /dev/null
 then
 	echo -e "\n${FAIL_COLOR}Failed to connect to host ${DATA_COLOR}${remoteHost}${INFO_COLOR} at port ${DATA_COLOR}${SSH_PORT}${INFO_COLOR} with user ${DATA_COLOR}${remoteUser}${INFO_COLOR}!${NULL_COLOR}"
 	eval "${closeSshCmd}"

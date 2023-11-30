@@ -21,7 +21,7 @@ echo -e "  ${INFO_COLOR}deployment path [ ${DATA_COLOR}${deployHome}${INFO_COLOR
 echo -e "  ${INFO_COLOR}deployment files [ ${DATA_COLOR}${deployFiles}${INFO_COLOR} ]${NULL_COLOR}\n"
 
 # Se crea el directorio donde guardar los ficheros de despliegue del servicio.
-if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${createDirCmd}
+if ! runRemoteCmd "${createDirCmd}"
 then
 	echo -e "${FAIL_COLOR}Deployment path ${DATA_COLOR}${deployHome}${FAIL_COLOR} creation failed!${NULL_COLOR}"
 	eval "${restoreEnvFileCmd}"

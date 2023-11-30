@@ -2,7 +2,7 @@
 
 # Se comprueba si está disponible el binario docker en el entorno donde se va a desplegar.
 checkDockerCmd="command -v docker > /dev/null"
-if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerCmd}
+if ! runRemoteCmd "${checkDockerCmd}"
 then
 	echo -e "\n${FAIL_COLOR}Docker is not available at deployment target host environment!${NULL_COLOR}"
 	eval "${closeSshCmd}"
@@ -11,7 +11,7 @@ fi
 
 # Se obtiene la versión de Docker disponible en el entorno donde se va a desplegar.
 getDockerVersionCmd="docker version --format '{{.Server.Version}}'"
-dockerVersion=$(ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${getDockerVersionCmd})
+dockerVersion=$(runRemoteCmd "${getDockerVersionCmd}")
 
 echo -e "  ${INFO_COLOR}host Docker version [ ${DATA_COLOR}${dockerVersion}${INFO_COLOR} ]${NULL_COLOR}"
 
@@ -26,7 +26,7 @@ then
 	deployingToSwarm=1
 else
 	checkSwarmManagerAvailabilityCmd="[ \$(docker info --format '{{.Swarm.ControlAvailable}}') = true ]"
-	ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkSwarmManagerAvailabilityCmd}
+	runRemoteCmd "${checkSwarmManagerAvailabilityCmd}"
 	deployingToSwarm=${?}
 fi
 
@@ -50,7 +50,7 @@ else
 		composeBaseCmd="docker-compose"
 
 		checkDockerComposeBinaryCmd="command -v docker-compose > /dev/null"
-		if ! ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${checkDockerComposeBinaryCmd}
+		if ! runRemoteCmd "${checkDockerComposeBinaryCmd}"
 		then
 			echo -e "\n${FAIL_COLOR}Legacy docker-compose binary is not available at deployment target host environment!${NULL_COLOR}"
 			eval "${closeSshCmd}"
@@ -60,7 +60,7 @@ else
 
 	# Se obtiene la versión de Docker Compose disponible en el entorno donde se va a desplegar.
 	getComposeVersionCmd="${composeBaseCmd} version --short"
-	composeVersion=$(ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${getComposeVersionCmd})
+	composeVersion=$(runRemoteCmd "${getComposeVersionCmd}")
 
 	echo -e "  ${INFO_COLOR}host Docker Compose version [ ${DATA_COLOR}${composeVersion}${INFO_COLOR} ]${NULL_COLOR}"
 fi

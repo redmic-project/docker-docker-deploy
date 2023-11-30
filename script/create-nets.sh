@@ -28,7 +28,7 @@ createNetsInRemoteCmd="\
 	createNetsCmd=\$(echo \"${createNetsCmd}\") && \
 	eval \"\${createNetsCmd}\""
 
-if ssh ${SSH_PARAMS} "${SSH_REMOTE}" ${createNetsInRemoteCmd}
+if runRemoteCmd "${createNetsInRemoteCmd}"
 then
 	echo -e "${PASS_COLOR}Network creation was successful!${NULL_COLOR}"
 else
