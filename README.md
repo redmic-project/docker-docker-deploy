@@ -88,7 +88,7 @@ You may define these environment variables (**bold** are mandatory):
 | **STACK** | - | Name of Docker stack (*Swarm* mode) or project (*Compose* mode) used to wrap deployed services. |
 | *COMPOSE_ENV_FILE_NAME* | `.env` | Name of variable values definition file. |
 | *COMPOSE_FILE* | `compose.yaml` | Name of service definition file. Multiple files are supported, separated by colon (`:`). |
-| *DEFAULT_DEPLOY_FILES* | `*compose*.y*ml .env` | Files needed for deployment. Used only if `DEPLOY_DIR_NAME` directory does not exist. |
+| *DEFAULT_DEPLOY_FILES* | `*compose*.y*ml ${COMPOSE_ENV_FILE_NAME}` | Files needed for deployment. Used only if `DEPLOY_DIR_NAME` directory does not exist. |
 | *DEPLOY_DIR_NAME* | `deploy` | Name of directory containing files needed for deployment. If directory exists, `DEFAULT_DEPLOY_FILES` is ignored and all contents are copied to deployment target host. |
 | *DEPLOY_PATH* | `~` | Path in deployment target host where deployment directory (used to hold temporary files) will be created. |
 | *ENV_PREFIX* | `DD_` | Prefix used to identify variables to be defined in deployment target host environment and service, available there without this prefix. Change this if default value collides with the beginning of your variable names. |
