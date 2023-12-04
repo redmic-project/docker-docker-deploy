@@ -17,7 +17,7 @@ then
 else
 	echo -e "docker compose config${INFO_COLOR} ]${NULL_COLOR}\n"
 
-	docker compose config -q
+	docker compose --env-file "${COMPOSE_ENV_FILE_NAME}" config -q
 fi
 
 if [ ${?} -eq 0 ]

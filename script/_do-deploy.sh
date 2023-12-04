@@ -49,7 +49,7 @@ then
 	deployCmd="${moveToDeployDirCmd}${deploySwarmCmd}"
 else
 	deployComposeCmd="\
-		composeCmd=\"${composeBaseCmd} -f ${standardComposeFileSplitted} -p ${STACK}\" ; \
+		composeCmd=\"${composeBaseCmd} -f ${standardComposeFileSplitted} --env-file "${COMPOSE_ENV_FILE_NAME}" -p ${STACK}\" ; \
 		\${composeCmd} stop ${SERVICES_TO_DEPLOY} && \
 		\${composeCmd} rm -f ${SERVICES_TO_DEPLOY} && \
 		\${composeCmd} pull ${SERVICES_TO_DEPLOY} && \
