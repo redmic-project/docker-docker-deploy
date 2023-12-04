@@ -20,8 +20,18 @@ echo -en "  ${INFO_COLOR}variable names [ ${DATA_COLOR}STACK${INFO_COLOR}"
 envDefs="STACK=${STACK}"
 
 addVariableToEnv() {
-	envDefs="${envDefs}\\n${1}"
-	variableName=$(echo "${1}" | cut -d '=' -f 1)
+	varDefinition="${1}"
+	if [ ! ${docker23CompatibleTarget} -eq 0 ] || [ ! ${deployingToSwarm} -eq 0 ]
+	then
+		if [ ${OMIT_DOLLAR_DUPLICATION} -eq 0 ]
+		then
+			varDefinition=$(echo "${varDefinition}" | sed -r 's/([^\$])(\$)([^\$])/\1\2\2\3/g')
+		fi
+	fi
+
+	envDefs="${envDefs}\\n${varDefinition}"
+
+	variableName=$(echo "${varDefinition}" | cut -d '=' -f 1)
 	echo -en "${INFO_COLOR}, ${DATA_COLOR}${variableName}${INFO_COLOR}"
 }
 
