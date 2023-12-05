@@ -32,7 +32,7 @@ else
 				variableValue=$(echo "${envLine}" | cut -d '=' -f 2-)
 
 				# Si la variable ya tiene valor entrecomillado simple o los dólares duplicados, se usa tal cual
-				if echo "${variableValue}" | grep -q '\$\$' || echo "${variableValue}" | grep -q '^'''
+				if echo "${variableValue}" | grep -q '\$\$' || echo "${variableValue}" | grep -q "^'"
 				then
 					envConfigContent="${envConfigContent}${variableName}=${variableValue}\\n"
 				else
