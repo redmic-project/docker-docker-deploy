@@ -18,7 +18,7 @@ then
 else
 	echo -e "docker compose config${INFO_COLOR} ]${NULL_COLOR}\n"
 
-	if [ ${OMIT_COMPOSE_ENV_FILE_INTERPOLATION} -eq 0 ]
+	if [ ${ALLOW_COMPOSE_ENV_FILE_INTERPOLATION} -eq 0 ]
 	then
 		envConfigContent=""
 		while IFS= read -r envLine

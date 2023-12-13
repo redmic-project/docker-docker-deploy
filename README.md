@@ -86,6 +86,7 @@ You may define these environment variables (**bold** are mandatory):
 | **DEPLOY_KEY** | - | Private key used to authenticate, paired with a public key accepted by remote host. |
 | **SSH_REMOTE** | - | SSH user and hostname (DNS or IP) of remote host where you are going to deploy. |
 | **STACK** | - | Name of Docker stack (*Swarm* mode) or project (*Compose* mode) used to wrap deployed services. |
+| *ALLOW_COMPOSE_ENV_FILE_INTERPOLATION* | `0` | Allow passing variable values directly from `COMPOSE_ENV_FILE_NAME` file (`.env` by default), to let *Compose* interpolate variables used into values. By default, values will be single-quoted before checking config and deploying with *Compose*, to avoid getting unwanted variable resolution. Useful only for *Compose* mode. |
 | *COMPOSE_ENV_FILE_NAME* | `.env` | Name of variable values definition file. |
 | *COMPOSE_FILE* | `compose.yaml` | Name of service definition file. Multiple files are supported, separated by colon (`:`). |
 | *DEFAULT_DEPLOY_FILES* | `*compose*.y*ml ${COMPOSE_ENV_FILE_NAME}` | Files needed for deployment. Used only if `DEPLOY_DIR_NAME` directory does not exist. |
@@ -96,7 +97,6 @@ You may define these environment variables (**bold** are mandatory):
 | *FORCE_DOCKER_COMPOSE* | `0` | Use always standard (*Compose*) mode instead of Docker *Swarm*, even if it is available at deployment target host. |
 | *GREP_BIN* | `grep` | Path to *grep* binary in deployment target host. |
 | *OMIT_CLEAN_DEPLOY* | `0` | Leave at deployment target host all deployment resources after doing a deploy. Useful when using bind mounts or *Compose* secrets (pointing to static content in deployment resources) or you want to check sent contents. |
-| *OMIT_COMPOSE_ENV_FILE_INTERPOLATION* | `0` | Allow passing variable values directly from `COMPOSE_ENV_FILE_NAME` file (`.env` by default), to let *Compose* interpolate variables used into values. By default, values will be single-quoted before checking config and deploy with *Compose*, to avoid getting unwanted variable resolution. Useful only for *Compose* mode. |
 | *OMIT_STATUS_CHECK* | `0` | Bypass status check process after deploying services. Useful when you need to be fast. |
 | *REGISTRY_PASS* | - | Docker registry password, corresponding to a user with read permissions. **Required** for private registry or repository. |
 | *REGISTRY_URL* | - | Docker registry address, where Docker must log in to retrieve images. Useful only when using private registry or repository. Default is empty, to use Docker Hub registry. |
