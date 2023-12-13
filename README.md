@@ -12,11 +12,11 @@ You can use it to deploy your own services, supporting **Docker Compose** (both 
 
   1. **check-env**:
 
-     Check dependencies and version requirements at deployment target host environment.
+     Check dependencies, version requirements and available modes at deployment target host environment.
 
   1. **check-mode**:
 
-     Check supported mode (`Swarm` or `Compose`) at deployment target host environment.
+     Check which deploy mode (`Swarm` or `Compose`) will be used at deployment target host environment.
 
   1. **prepare-env**:
 
@@ -40,7 +40,15 @@ You can use it to deploy your own services, supporting **Docker Compose** (both 
 
 * **create-nets**:
 
-  Prepare deployment target host environment creating Docker networks which are external to service definition (not created by service deployment itself, defined as *external* in compose files).
+  Prepare deployment target host environment creating Docker networks which are external to service definition. A network is external when it's not created by service deployment itself, because is defined as *external* in compose files. Contains several stages:
+
+  1. **check-env**:
+
+     Check dependencies, version requirements and available modes at deployment target host environment.
+
+  1. **do-create-nets**:
+
+     Prepare networks creation command for supported mode and run it at deployment target host environment.
 
 * **relaunch**:
 
