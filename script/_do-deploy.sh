@@ -7,7 +7,7 @@ then
 	echo -e "\n${INFO_COLOR}Login to registry ${DATA_COLOR}${REGISTRY_URL:-<default>}${INFO_COLOR} ..${NULL_COLOR}\n"
 
 	loginCmd="\
-		${GREP_BIN} \"^${ddRegistryPassVarName}=\" \"${COMPOSE_ENV_FILE_NAME}\" | cut -d= -f2- | \
+		${GREP_BIN} \"^${ddRegistryPassVarName}=\" \"${COMPOSE_ENV_FILE_NAME}\" | cut -d= -f2- | tr -d \"'\" | \
 		docker login -u \"${REGISTRY_USER}\" --password-stdin ${REGISTRY_URL}"
 
 	if runRemoteCmd "${moveToDeployDirCmd}${loginCmd}"
@@ -48,12 +48,13 @@ then
 
 	deployCmd="${moveToDeployDirCmd}${deploySwarmCmd}"
 else
+	composeCmd="${composeBaseCmd} -f ${standardComposeFileSplitted} --env-file \"${COMPOSE_ENV_FILE_NAME}\" -p ${STACK}"
+
 	deployComposeCmd="\
-		composeCmd=\"${composeBaseCmd} -f ${standardComposeFileSplitted} --env-file "${COMPOSE_ENV_FILE_NAME}" -p ${STACK}\" ; \
-		\${composeCmd} stop ${SERVICES_TO_DEPLOY} && \
-		\${composeCmd} rm -f ${SERVICES_TO_DEPLOY} && \
-		\${composeCmd} pull ${SERVICES_TO_DEPLOY} && \
-		\${composeCmd} up -d ${SERVICES_TO_DEPLOY}"
+		${composeCmd} stop ${SERVICES_TO_DEPLOY} && \
+		${composeCmd} rm -f ${SERVICES_TO_DEPLOY} && \
+		${composeCmd} pull ${SERVICES_TO_DEPLOY} && \
+		${composeCmd} up -d ${SERVICES_TO_DEPLOY}"
 
 	deployCmd="${moveToDeployDirCmd}${deployComposeCmd}"
 fi

@@ -40,6 +40,12 @@ else
 			fi
 		done < "${COMPOSE_ENV_FILE_NAME}"
 		echo -e "${envConfigContent}" > "${tempEnvFile}"
+
+		# Si se va a desplegar con modo compose, se preservan las variables con interpolación omitida
+		if [ ${deployingToSwarm} -ne 0 ]
+		then
+			cp -a "${tempEnvFile}" "${COMPOSE_ENV_FILE_NAME}"
+		fi
 	else
 		cp -a "${COMPOSE_ENV_FILE_NAME}" "${tempEnvFile}"
 	fi
