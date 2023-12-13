@@ -16,6 +16,8 @@ then
 		. $(pwd)/${tempEnvFile} && \
 		rm $(pwd)/${tempEnvFile} && \
 		/usr/local/bin/docker stack config -c ${swarmComposeFileSplitted} > /dev/null"
+
+	checkConfigExitCode=${?}
 else
 	echo -e "docker compose config${INFO_COLOR} ]${NULL_COLOR}\n"
 
@@ -46,11 +48,12 @@ else
 	fi
 
 	docker compose --env-file "${tempEnvFile}" config -q
+	checkConfigExitCode=${?}
 
 	rm "${tempEnvFile}"
 fi
 
-if [ ${?} -eq 0 ]
+if [ ${checkConfigExitCode} -eq 0 ]
 then
 	echo -e "${PASS_COLOR}Valid compose configuration!${NULL_COLOR}"
 else
