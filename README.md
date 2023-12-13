@@ -8,11 +8,15 @@ You can use it to deploy your own services, supporting **Docker Compose** (both 
 
 * **deploy**:
 
-  Perform a service deployment at a Docker environment. Contains 6 stages:
+  Perform a service deployment at a Docker environment. Contains several stages:
 
   1. **check-env**:
 
-     Check dependencies, version requirements and get supported mode (`Swarm` or `Compose`) at deployment target host environment.
+     Check dependencies and version requirements at deployment target host environment.
+
+  1. **check-mode**:
+
+     Check supported mode (`Swarm` or `Compose`) at deployment target host environment.
 
   1. **prepare-env**:
 
