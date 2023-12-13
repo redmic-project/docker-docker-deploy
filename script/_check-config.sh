@@ -14,10 +14,7 @@ then
 
 	env -i /bin/sh -c "\
 		. $(pwd)/${tempEnvFile} && \
-		rm $(pwd)/${tempEnvFile} && \
 		/usr/local/bin/docker stack config -c ${swarmComposeFileSplitted} > /dev/null"
-
-	checkConfigExitCode=${?}
 else
 	echo -e "docker compose config${INFO_COLOR} ]${NULL_COLOR}\n"
 
@@ -44,14 +41,15 @@ else
 		done < "${COMPOSE_ENV_FILE_NAME}"
 		echo -e "${envConfigContent}" > "${tempEnvFile}"
 	else
-		tempEnvFile="${COMPOSE_ENV_FILE_NAME}"
+		cp -a "${COMPOSE_ENV_FILE_NAME}" "${tempEnvFile}"
 	fi
 
 	docker compose --env-file "${tempEnvFile}" config -q
-	checkConfigExitCode=${?}
-
-	rm "${tempEnvFile}"
 fi
+
+checkConfigExitCode=${?}
+
+rm "${tempEnvFile}"
 
 if [ ${checkConfigExitCode} -eq 0 ]
 then
