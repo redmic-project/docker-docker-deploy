@@ -5,12 +5,12 @@ if [ ! -z "${REGISTRY_USER}" ]
 then
 	serviceUpdateAdditionalArgs="${serviceUpdateAdditionalArgs} --with-registry-auth"
 
-	echo -e "\n${INFO_COLOR}Login to registry ${DATA_COLOR}${REGISTRY_URL:-<default>}${INFO_COLOR} ..${NULL_COLOR}\n"
+	echo -e "${INFO_COLOR}Login to registry ${DATA_COLOR}${REGISTRY_URL:-<default>}${INFO_COLOR} ..${NULL_COLOR}\n"
 
 	# Se prepara la ruta de trabajo.
 	randomValue="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)"
 	relaunchHome="${DEPLOY_PATH}/docker-deploy/${randomValue}"
-	createDirCmd="mkdir -p ${deployHome}"
+	createDirCmd="mkdir -p ${relaunchHome}"
 
 	if ! runRemoteCmd "${createDirCmd}"
 	then
@@ -26,12 +26,12 @@ then
 
 	echo -e "${ddRegistryPassVarName}=${REGISTRY_PASS}" > "${relaunchEnvFile}"
 
-	echo -e "\n${INFO_COLOR}Sending relaunch resources to host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
+	echo -e "${INFO_COLOR}Sending relaunch resources to host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
 	echo -e "  ${INFO_COLOR}relaunch path [ ${DATA_COLOR}${relaunchHome}${INFO_COLOR} ]${NULL_COLOR}"
 
 	if scp ${SSH_PARAMS} "${relaunchEnvFile}" "${SSH_REMOTE}:${relaunchHome}"
 	then
-		echo -e "\n${PASS_COLOR}Relaunch resources successfully sent!${NULL_COLOR}"
+		echo -e "\n${PASS_COLOR}Relaunch resources successfully sent!${NULL_COLOR}\n"
 	else
 		echo -e "\n${FAIL_COLOR}Relaunch resources sending failed!${NULL_COLOR}"
 		eval "${closeSshCmd}"
@@ -55,5 +55,5 @@ then
 	eval "${rmRelaunchEnvFileCmd}"
 	runRemoteCmd "${moveToRelaunchDirCmd}${rmRelaunchEnvFileCmd}"
 else
-	echo -e "\n${INFO_COLOR}Omitting login to registry${NULL_COLOR}"
+	echo -e "${INFO_COLOR}Omitting login to registry${NULL_COLOR}"
 fi
