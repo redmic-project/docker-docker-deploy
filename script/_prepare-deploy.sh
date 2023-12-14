@@ -30,7 +30,6 @@ then
 fi
 
 # Prepara ficheros compose sin versión si se despliega en modo Swarm a un entorno con versión Docker < v23.
-restoreComposeFilesCmd=""
 if [ ${deployingToSwarm} -eq 0 ] && [ ${docker23CompatibleTarget} -ne 0 ]
 then
 	for composeFile in $(echo "${COMPOSE_FILE}" | sed 's/:/ /g')

@@ -8,12 +8,11 @@ then
 fi
 
 # Prepara comando compuesto de creación de redes
-createNetsCmd=""
+createNetsCmd=":"
 for netName in "${@}"
 do
-	createNetsCmd="${createNetsCmd}${createNetCmd} ${netName}; "
+	createNetsCmd="${createNetCmd} ${netName}; ${createNetsCmd}"
 done
-createNetsCmd="${createNetsCmd} :"
 
 if runRemoteCmd "${createNetsCmd}"
 then
