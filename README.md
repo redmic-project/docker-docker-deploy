@@ -10,6 +10,14 @@ You can use it to deploy your own services, supporting **Docker Compose** (both 
 
   Perform a service deployment at a Docker environment. Contains several stages:
 
+  1. **definitions**:
+
+     Set initial configuration values, getting environment values and with local defaults as fallback. Also prints the initial banner.
+
+  1. **ssh-config**:
+
+     Prepare connection to deployment target host environment. Set connection options, add identity and define functions to run commands at target.
+
   1. **check-env**:
 
      Check dependencies, version requirements and available modes at deployment target host environment.
@@ -42,6 +50,14 @@ You can use it to deploy your own services, supporting **Docker Compose** (both 
 
   Prepare deployment target host environment creating Docker networks which are external to service definition. A network is external when it's not created by service deployment itself, because is defined as *external* in compose files. Contains several stages:
 
+  1. **definitions**:
+
+     Set initial configuration values, getting environment values and with local defaults as fallback. Also prints the initial banner.
+
+  1. **ssh-config**:
+
+     Prepare connection to deployment target host environment. Set connection options, add identity and define functions to run commands at target.
+
   1. **check-env**:
 
      Check dependencies, version requirements and available modes at deployment target host environment.
@@ -52,7 +68,35 @@ You can use it to deploy your own services, supporting **Docker Compose** (both 
 
 * **relaunch**:
 
-  Force a previously deployed service to update, relaunching it with the same service configuration. Available only for *Swarm* mode.
+  Force a previously deployed service to update, relaunching it with the same service configuration. Available only for *Swarm* mode. Contains several stages:
+
+  1. **definitions**:
+
+     Set initial configuration values, getting environment values and with local defaults as fallback. Also prints the initial banner.
+
+  1. **ssh-config**:
+
+     Prepare connection to deployment target host environment. Set connection options, add identity and define functions to run commands at target.
+
+  1. **check-env**:
+
+     Check dependencies, version requirements and available modes at deployment target host environment.
+
+  1. **prepare-relaunch**:
+
+     Obtain single service name to relaunch, because `SERVICE` value might be a prefix for several service names. Check if service exists at deployment target host environment.
+
+  1. **prepare-registry**:
+
+     Only when using `USE_IMAGE_DIGEST=1`. Perform login to registry when using credentials, to be able to get updated images.
+
+  1. **prepare-digest**:
+
+     Only when using `USE_IMAGE_DIGEST=1`. Before relaunching service, get updated image and its current digest data.
+
+  1. **do-relaunch**:
+
+     Run service relaunch at deployment target host environment.
 
 ## Usage
 
@@ -123,8 +167,8 @@ You may define these environment variables (**bold** are mandatory):
 | *STATUS_CHECK_INTERVAL* | `20` | Seconds to wait between check iterations. |
 | *STATUS_CHECK_MIN_HITS* | `3` | Minimum number of successful checks to consider deployment as successful. |
 | *STATUS_CHECK_RETRIES* | `10` | Maximum number of checks before considering deployment as failed. |
-| *SWARM_RESOLVE_IMAGE* | `always` | Allows to edit the behaviour of the registry query to resolve image digests and supported platforms (`always`, `changed` or `never`). |
-| *USE_IMAGE_DIGEST* | `0` | Update service image using digest data when relaunching. Available only for *relaunch* action. |
+| *SWARM_RESOLVE_IMAGE* | `always` | Allows to edit the behaviour of *deploy* and *relaunch* actions when querying registry, to resolve image digests and supported platforms or not. Supported values are `always`, `changed` or `never`. |
+| *USE_IMAGE_DIGEST* | `0` | Update service image using digest data when relaunching. Useful when using images which receive updates under same tag and want to keep them updated with same version on all nodes. Available only for *relaunch* action. |
 
 ### Your services
 
