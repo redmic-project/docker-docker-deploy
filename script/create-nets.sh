@@ -10,7 +10,8 @@ fi
 
 . _ssh-config.sh
 
-echo -e "\n${INFO_COLOR}Creating networks at remote ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}\n"
+echo -e "${INFO_COLOR}Creating networks at remote ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
+echo -e "  ${INFO_COLOR}networks [ ${DATA_COLOR}${@}${INFO_COLOR} ]${NULL_COLOR}"
 
 . _check-env.sh
 
