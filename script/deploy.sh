@@ -13,6 +13,7 @@ fi
 echo -e "${INFO_COLOR}Performing a deployment at host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
 
 . _check-env.sh
+. _check-mode.sh
 . _prepare-env.sh
 . _check-config.sh
 . _prepare-deploy.sh

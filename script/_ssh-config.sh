@@ -6,7 +6,8 @@ then
 	exit 1
 fi
 
-remoteHost=$(echo "${SSH_REMOTE}" | cut -f 2 -d '@')
+remoteUser=$(echo "${SSH_REMOTE}" | cut -d '@' -f 1)
+remoteHost=$(echo "${SSH_REMOTE}" | cut -d '@' -f 2)
 
 if [ -z "${remoteHost}" ]
 then
@@ -24,4 +25,17 @@ fi
 eval "$(ssh-agent)" > /dev/null
 echo "${DEPLOY_KEY}" | tr -d '\r' | ssh-add - > /dev/null 2>&1
 
-closeSshCmd="ssh ${SSH_PARAMS} -q -O exit \"${SSH_REMOTE}\""
+# Prepara comando de cierre de sesión SSH.
+closeSshCmd="ssh -l ${remoteUser} ${SSH_PARAMS} -q -O exit \"${remoteHost}\""
+
+runRemoteCmd() {
+	ssh -l ${remoteUser} ${SSH_PARAMS} "${remoteHost}" "${1}"
+}
+
+# Se comprueba si está disponible la conexión hacia el entorno donde se va a desplegar.
+if ! runRemoteCmd ":" &> /dev/null
+then
+	echo -e "${FAIL_COLOR}Failed to connect to host ${DATA_COLOR}${remoteHost}${FAIL_COLOR} at port ${DATA_COLOR}${SSH_PORT}${FAIL_COLOR} with user ${DATA_COLOR}${remoteUser}${FAIL_COLOR}!${NULL_COLOR}"
+	eval "${closeSshCmd}"
+	exit 1
+fi

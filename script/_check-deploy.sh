@@ -104,7 +104,7 @@ checkDeployCmd="\
 		fi ; \
 	done"
 
-if ssh ${SSH_PARAMS} "${SSH_REMOTE}" "${checkDeployCmd}"
+if runRemoteCmd "${checkDeployCmd}"
 then
 	echo -e "\n${PASS_COLOR}All services seems ok!${NULL_COLOR}"
 else
