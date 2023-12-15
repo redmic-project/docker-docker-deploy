@@ -28,7 +28,7 @@ then
 		${GREP_BIN} -v '^[#| ]' \"${COMPOSE_ENV_FILE_NAME}\" | \
 			sed -r \"s/(\w+)=(.*)/export \1='\2'/g\" > .env-deploy && \
 		env -i /bin/sh -c \"\
-			. .env-deploy && \
+			. $(pwd)/.env-deploy && \
 			rm .env-deploy && \
 			docker stack deploy \
 				${deployAuthParam} \

@@ -13,7 +13,7 @@ then
 	grep -v '^[#| ]' "${COMPOSE_ENV_FILE_NAME}" | sed -r "s/(\w+)=(.*)/export \1='\2'/g" > "${tempEnvFile}"
 
 	env -i /bin/sh -c "\
-		. ${tempEnvFile} && \
+		. $(pwd)/${tempEnvFile} && \
 		/usr/local/bin/docker stack config -c ${swarmComposeFileSplitted} > /dev/null"
 else
 	echo -e "docker compose config${INFO_COLOR} ]${NULL_COLOR}\n"
