@@ -82,7 +82,7 @@ deployExitCode=${?}
 
 if [ "${OMIT_CLEAN_DEPLOY}" -eq 0 ]
 then
-	cleanDeployCmd="rm -rf \"${deployHome}\""
+	cleanDeployCmd="rm -r ${deployHome}"
 	runRemoteCmd "${cleanDeployCmd}"
 else
 	echo -e "\n${INFO_COLOR}Deployment resources cleaning omitted${NULL_COLOR}"

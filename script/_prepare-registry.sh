@@ -29,7 +29,12 @@ then
 	echo -e "${INFO_COLOR}Sending relaunch resources to host ${DATA_COLOR}${remoteHost}${INFO_COLOR} ..${NULL_COLOR}"
 	echo -e "  ${INFO_COLOR}relaunch path [ ${DATA_COLOR}${relaunchHome}${INFO_COLOR} ]${NULL_COLOR}"
 
-	if scp ${SSH_PARAMS} "${relaunchEnvFile}" "${SSH_REMOTE}:${relaunchHome}"
+	scp ${SSH_PARAMS} "${relaunchEnvFile}" "${SSH_REMOTE}:${relaunchHome}"
+	sendResourcesExitCode=${?}
+
+	rm "${relaunchEnvFile}"
+
+	if [ "${sendResourcesExitCode}" -eq 0 ]
 	then
 		echo -e "\n${PASS_COLOR}Relaunch resources successfully sent!${NULL_COLOR}\n"
 	else
@@ -50,10 +55,9 @@ then
 		echo -e "\n${FAIL_COLOR}Login to registry failed!${NULL_COLOR}"
 	fi
 
-	# Se limpian ficheros de credenciales.
-	rmRelaunchEnvFileCmd="rm -f ${relaunchEnvFile}"
-	eval "${rmRelaunchEnvFileCmd}"
-	runRemoteCmd "${moveToRelaunchDirCmd}${rmRelaunchEnvFileCmd}"
+	# Se limpia la ruta de trabajo.
+	cleanRelaunchCmd="rm -r ${relaunchHome}"
+	runRemoteCmd "${cleanRelaunchCmd}"
 else
 	echo -e "${INFO_COLOR}Omitting login to registry${NULL_COLOR}"
 fi
